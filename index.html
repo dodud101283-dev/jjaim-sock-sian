@@ -184,7 +184,7 @@
     <!-- 짜임 중 -->
     <section class="page" id="s-wait" hidden>
       <div class="waitfull">
-        <h2 id="waitT">지금 짜고 있어요</h2>
+        <h2 id="waitT">지금 짜임 중이에요</h2>
         <div class="pill" id="waitPct">0% · 실을 고르고 있어요</div>
         <div class="wbar"><i id="wbar"></i></div>
         <div class="stage"><canvas id="w" aria-label="양말을 짜는 중"></canvas></div>
@@ -492,9 +492,12 @@ const CONFIG = {
       printLayer[i] = p;
     }
   }
+  let printReveal = null;                                   // 인쇄 장면에서 헤드가 지나간 높이까지만 그림을 보여 준다
   function drawPrint(c, i){
     const p = printLayer[i]; if (!p) return;
-    c.save(); c.globalCompositeOperation = 'multiply'; c.drawImage(p, PRINT.x, PRINT.y, PRINT.w, PRINT.h); c.restore();
+    c.save();
+    if (printReveal != null){ c.beginPath(); c.rect(PRINT.x, PRINT.y, PRINT.w, Math.max(0, printReveal - PRINT.y)); c.clip(); }
+    c.globalCompositeOperation = 'multiply'; c.drawImage(p, PRINT.x, PRINT.y, PRINT.w, PRINT.h); c.restore();
   }
   function drawRealSock(c, i, L, sq, rot){
     const col = COLORS[S.color];
@@ -672,7 +675,7 @@ const CONFIG = {
   function initMake(){ S.sel = 0; wake(); }
 
   /* ---------------- 짜임 중 ---------------- */
-  const WAIT_MS = 6800, WAIT_STEPS = [[0, '실을 고르고 있어요'], [.22, '그림을 옮겨 담고 있어요'], [.5, '한 땀 한 땀 짜고 있어요'], [.8, '마무리하고 있어요']];
+  const WAIT_MS = 7600, WAIT_STEPS = [[0, '양말을 틀에 끼우고 있어요'], [.14, '그림을 올리고 있어요'], [.36, '한 줄씩 인쇄하고 있어요'], [.86, '잉크를 말리고 있어요']];
   const TIPS = ['완성되면 양말을 톡톡 눌러 보세요', '신어 보기도 해 볼 수 있어요', '피부색도 바꿀 수 있어요', '마음에 들면 시안을 저장해서 보내 보세요'];
   let waitT0 = 0;
   $('make').addEventListener('click', () => {
@@ -680,18 +683,36 @@ const CONFIG = {
     post('make', {color: COLORS[S.color].name, scale: S.t[0].s, rot: Math.round(S.t[0].r), second: S.imgs[0] !== S.imgs[1]});
     go('wait'); waitT0 = performance.now(); wake();
   });
+  function rrect(c, x, y, w, h, r){ c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r); c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath(); }
   function drawWait(now){
-    const p = Math.min(1, (now - waitT0) / WAIT_MS), c = wctx; c.setTransform(dpr, 0, 0, dpr, 0, 0);
-    c.clearRect(0, 0, W, 340); c.fillStyle = '#fff'; c.fillRect(0, 0, W, 340);
-    c.save(); c.translate(W / 2 - 150 * .86, -14); c.scale(.86, .86);
-    c.save(); c.setLineDash([6, 5]); c.strokeStyle = 'rgba(216,59,91,.5)'; c.lineWidth = 2; c.stroke(sockPath); c.restore();
-    c.save(); c.clip(sockPath); const col = COLORS[S.color], top = 356 - 356 * ease.inOut(p);
-    c.fillStyle = col.base; c.fillRect(0, top, 320, 380); c.fillStyle = chevPat; c.fillRect(0, top, 320, 380);
-    c.fillStyle = 'rgba(255,255,255,.55)'; c.fillRect(0, top - 2, 320, 4); c.restore();
-    const nx = 150 + Math.sin(now / 160) * 70; c.strokeStyle = '#7a6a6f'; c.lineWidth = 3; c.lineCap = 'round';
-    c.beginPath(); c.moveTo(nx - 40, top - 38); c.lineTo(nx + 6, top + 2); c.stroke(); c.beginPath(); c.moveTo(nx + 40, top - 38); c.lineTo(nx - 6, top + 2); c.stroke();
-    c.fillStyle = '#d83b5b'; c.beginPath(); c.arc(nx - 40, top - 38, 6, 0, 7); c.fill(); c.beginPath(); c.arc(nx + 40, top - 38, 6, 0, 7); c.fill();
-    c.restore();
+    const p = Math.min(1, (now - waitT0) / WAIT_MS), c = wctx, HH = 340; c.setTransform(dpr, 0, 0, dpr, 0, 0);
+    c.clearRect(0, 0, W, HH);
+    const bg = c.createLinearGradient(0, 0, 0, HH); bg.addColorStop(0, '#f4f0e9'); bg.addColorStop(1, '#e3dbce'); c.fillStyle = bg; c.fillRect(0, 0, W, HH);
+    const S0 = .86, ox = W / 2 - 150 * S0, oy = 12;
+    // 작업대(양말을 끼우는 틀)
+    c.save(); c.shadowColor = 'rgba(40,30,25,.28)'; c.shadowBlur = 18; c.shadowOffsetY = 6;
+    const pg = c.createLinearGradient(0, 0, 0, HH); pg.addColorStop(0, '#dcd7ce'); pg.addColorStop(1, '#c3bdb1'); c.fillStyle = pg; rrect(c, W / 2 - 206, 6, 412, HH - 14, 14); c.fill(); c.restore();
+    c.strokeStyle = 'rgba(0,0,0,.14)'; c.lineWidth = 1.5; rrect(c, W / 2 - 206, 6, 412, HH - 14, 14); c.stroke();
+    [[-190, 20], [190, 20], [-190, HH - 28], [190, HH - 28]].forEach(a => { const g = c.createRadialGradient(W / 2 + a[0] - 1, a[1] - 1, 1, W / 2 + a[0], a[1], 6); g.addColorStop(0, '#f3f3f3'); g.addColorStop(1, '#8e8a85'); c.fillStyle = g; c.beginPath(); c.arc(W / 2 + a[0], a[1], 5.5, 0, 7); c.fill(); });
+    // 양말: 헤드가 지나간 곳까지만 그림이 보인다
+    const rp = Math.min(1, p / .84), barLocal = rp * 356;
+    printReveal = barLocal + 3; drawRealSock(c, 0, {ox: ox, oy: oy, s: S0}, null, 0); printReveal = null;
+    // 인쇄 헤드 이동대
+    let by = oy + barLocal * S0; const out = Math.max(0, (p - .84) / .16); by += out * 120;
+    const bx0 = W / 2 - 192, bx1 = W / 2 + 192;
+    const rg = c.createLinearGradient(0, 0, 14, 0); rg.addColorStop(0, '#b9b8b6'); rg.addColorStop(.5, '#f2f2f1'); rg.addColorStop(1, '#8f8d8a');
+    c.fillStyle = rg; c.fillRect(bx0 - 7, 8, 10, HH - 18); c.fillRect(bx1 - 3, 8, 10, HH - 18);
+    const sh = c.createLinearGradient(0, by + 8, 0, by + 30); sh.addColorStop(0, 'rgba(30,20,15,.22)'); sh.addColorStop(1, 'rgba(30,20,15,0)'); c.fillStyle = sh; c.fillRect(bx0, by + 8, bx1 - bx0, 22);
+    const mg = c.createLinearGradient(0, by - 9, 0, by + 9); mg.addColorStop(0, '#f7f7f6'); mg.addColorStop(.45, '#bdbcba'); mg.addColorStop(1, '#8a8886'); c.fillStyle = mg; rrect(c, bx0, by - 9, bx1 - bx0, 18, 4); c.fill();
+    c.strokeStyle = 'rgba(0,0,0,.25)'; c.lineWidth = 1; rrect(c, bx0, by - 9, bx1 - bx0, 18, 4); c.stroke();
+    // 헤드(좌우로 빠르게 움직임)
+    const cx = W / 2 + Math.sin(now / 105) * 128 * (1 - out);
+    const hg = c.createLinearGradient(0, by - 30, 0, by + 4); hg.addColorStop(0, '#4a4644'); hg.addColorStop(1, '#262321'); c.fillStyle = hg; rrect(c, cx - 28, by - 32, 56, 34, 6); c.fill();
+    c.fillStyle = 'rgba(255,255,255,.18)'; rrect(c, cx - 25, by - 29, 50, 7, 3); c.fill();
+    c.fillStyle = (Math.floor(now / 260) % 2) ? '#d83b5b' : '#7a2a3a'; c.beginPath(); c.arc(cx + 18, by - 14, 3, 0, 7); c.fill();
+    const cols = ['#00a6d6', '#e4007f', '#ffd400', '#1a1a1a'];
+    cols.forEach((col, k) => { c.fillStyle = col; c.fillRect(cx - 22 + k * 11.5, by + 2, 9, 5); });
+    if (out < 1){ for (let k = 0; k < 7; k++){ const dy = ((now / 22 + k * 11) % 16); c.globalAlpha = .75 * (1 - dy / 16); c.fillStyle = cols[k % 4]; c.beginPath(); c.arc(cx - 22 + k * 7.2, by + 9 + dy, 1.6, 0, 7); c.fill(); } c.globalAlpha = 1; }
     let s = WAIT_STEPS[0][1]; WAIT_STEPS.forEach(w => { if (p >= w[0]) s = w[1]; });
     $('waitPct').textContent = Math.round(p * 100) + '% · ' + s; $('wbar').style.width = Math.round(p * 100) + '%';
     $('tipText').textContent = TIPS[Math.floor((now - waitT0) / 1700) % TIPS.length];
@@ -761,7 +782,7 @@ const CONFIG = {
     else if (hsh === '#d-q'){ qi = 0; renderQ(); }
     else if (hsh === '#d-make'){ go('make'); $('tools').hidden = false; $('make').disabled = false; wake(); }
     else if (hsh === '#d-big'){ S.t = [{x: 150, y: 170, s: 2.6, r: 0}, {x: 150, y: 170, s: 2.6, r: 0}]; go('make'); $('tools').hidden = false; $('make').disabled = false; uiFromT(); wake(); }
-    else if (hsh === '#d-wait'){ buildPrint(); go('wait'); waitT0 = performance.now() - 3200; wake(); }
+    else if (hsh === '#d-wait' || hsh === '#d-wait0' || hsh === '#d-wait2'){ buildPrint(); go('wait'); waitT0 = performance.now() - (hsh === '#d-wait0' ? 1300 : hsh === '#d-wait2' ? 6000 : 3500); wake(); }
     else if (hsh === '#d-show' || hsh === '#d-wear' || hsh === '#d-bigshow'){ if (hsh === '#d-bigshow') S.t = [{x: 150, y: 170, s: 2.6, r: 0}, {x: 150, y: 170, s: 2.6, r: 0}]; buildPrint(); startShow(); show.reveal = 0; if (hsh === '#d-wear'){ show.worn = true; show.p = 1; $('skinBox').hidden = false; } wake(); }
     window.__dbg = {S: S, A: A, show: show, sent: sent, sqz: sqz, poke: () => pokeCount, go: go};
   }
