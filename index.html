@@ -3,423 +3,774 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>짜임 양말 시안</title>
+<title>짜임 · 커플 설문과 양말 시안</title>
 <style>
-  :root{
-    --bg:#fff8f6; --card:#ffffff; --ink:#2b2326; --sub:#7a6a6f; --line:#f0dfe2;
-    --pink:#ff6b8b; --pink-d:#e84a6f; --pink-l:#ffe3ea;
-  }
+  :root{ --bg:#fff8f6; --card:#fff; --ink:#2b2326; --sub:#7a6a6f; --line:#f0dfe2; --pink:#ff6b8b; --pink-d:#e84a6f; --pink-l:#ffe3ea; }
   *{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
   html,body{margin:0; background:var(--bg); color:var(--ink);
     font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",sans-serif}
-  main{max-width:560px; margin:0 auto; padding:16px 16px 40px}
-  h1{font-size:22px; margin:8px 0 4px; letter-spacing:-.3px}
-  .sub{margin:0 0 14px; color:var(--sub); font-size:14px}
+  main{max-width:560px; margin:0 auto; padding:16px 16px 48px}
+  h1{font-size:23px; margin:10px 0 6px; letter-spacing:-.3px; line-height:1.3}
+  h2{font-size:19px; margin:4px 0 14px; line-height:1.4; letter-spacing:-.2px}
+  .sub{margin:0 0 14px; color:var(--sub); font-size:14px; line-height:1.55}
+  .card{background:var(--card); border:1px solid var(--line); border-radius:20px; padding:18px 16px}
+  .bar{height:6px; background:var(--pink-l); border-radius:99px; overflow:hidden; margin:2px 0 14px}
+  .bar i{display:block; height:100%; width:0; background:var(--pink); border-radius:99px; transition:width .3s}
+  .step{font-size:12.5px; color:var(--sub); margin-bottom:6px}
+  button,.btn{appearance:none; border:0; border-radius:14px; font:inherit; font-weight:700; font-size:15px; padding:14px 16px; cursor:pointer; background:var(--pink); color:#fff; text-align:center}
+  button.ghost,.btn.ghost{background:var(--pink-l); color:var(--pink-d)}
+  button.line,.btn.line{background:#fff; color:var(--ink); border:1px solid var(--line)}
+  button:disabled{opacity:.4; cursor:default}
+  button:active,.btn:active{transform:scale(.98)}
+  .opt{display:block; width:100%; margin:8px 0; text-align:left; background:#fff; color:var(--ink); border:1.5px solid var(--line); font-weight:600; line-height:1.4}
+  .opt.on{border-color:var(--pink); background:var(--pink-l); color:var(--pink-d)}
+  .opt .m{display:inline-block; width:20px; margin-right:6px; font-weight:800}
+  .row{display:flex; gap:8px; flex-wrap:wrap; margin:12px 0}
+  .grow{flex:1}
+  .nav{display:flex; gap:8px; margin-top:14px}
+  input[type=text],input[type=tel],input[type=number],textarea{width:100%; font:inherit; padding:13px 14px; border:1.5px solid var(--line); border-radius:14px; background:#fff; color:var(--ink); margin-top:8px}
+  textarea{min-height:96px; resize:vertical}
+  .chk{display:flex; align-items:flex-start; gap:10px; font-size:13.5px; margin:12px 0; color:var(--sub); line-height:1.55}
+  .chk input{width:20px; height:20px; accent-color:var(--pink); flex:none; margin-top:2px}
+  .note{color:var(--sub); font-size:12.5px; line-height:1.6; margin-top:16px}
+  .note b{color:var(--ink)}
+  .warn{background:#fff3cd; color:#7a5b00; font-size:12.5px; padding:8px 12px; border-radius:12px; margin-bottom:10px; line-height:1.5}
+  .svcbox{background:var(--pink-l); border-radius:16px; padding:14px; margin:10px 0; font-size:15px; line-height:1.6}
+  .specs{margin:8px 0 0; padding-left:18px; color:var(--sub); font-size:14px; line-height:1.7}
   .stage{background:var(--card); border:1px solid var(--line); border-radius:20px; padding:10px; position:relative}
-  canvas{width:100%; height:auto; display:block; border-radius:14px; background:#fffdfc; touch-action:none; -webkit-user-select:none; user-select:none}
+  canvas{width:100%; height:auto; display:block; border-radius:14px; background:#fffdfc; -webkit-user-select:none; user-select:none}
+  #c{touch-action:none}
+  #s{touch-action:manipulation}
   .hint{position:absolute; left:50%; bottom:14px; transform:translateX(-50%); background:rgba(43,35,38,.78); color:#fff;
     font-size:12.5px; padding:6px 12px; border-radius:99px; pointer-events:none; transition:opacity .4s; white-space:nowrap}
   .hint.off{opacity:0}
-  .row{display:flex; gap:8px; flex-wrap:wrap; margin:12px 0}
-  button, .btn{appearance:none; border:0; border-radius:14px; font:inherit; font-weight:700; font-size:15px; padding:13px 16px; cursor:pointer;
-    background:var(--pink); color:#fff; text-align:center}
-  button.ghost,.btn.ghost{background:var(--pink-l); color:var(--pink-d)}
-  button.line{background:#fff; color:var(--ink); border:1px solid var(--line)}
-  button:active,.btn:active{transform:scale(.98)}
-  .grow{flex:1}
   .panel{background:var(--card); border:1px solid var(--line); border-radius:20px; padding:14px 14px 6px; margin-top:12px}
-  .panel h2{font-size:15px; margin:0 0 8px}
+  .panel h3{font-size:15px; margin:0 0 8px}
   .field{margin:10px 0}
   .field label{display:flex; justify-content:space-between; font-size:13px; color:var(--sub); margin-bottom:4px}
   input[type=range]{width:100%; accent-color:var(--pink)}
-  .sw{display:flex; gap:10px; margin:6px 0 4px}
-  .sw button{width:42px; height:42px; padding:0; border-radius:50%; border:2px solid #fff; box-shadow:0 0 0 1px var(--line)}
+  .sw{display:flex; gap:10px; margin:6px 0 10px}
+  .sw button{width:40px; height:40px; padding:0; border-radius:50%; border:2px solid #fff; box-shadow:0 0 0 1px var(--line)}
   .sw button.on{box-shadow:0 0 0 3px var(--pink)}
-  .chk{display:flex; align-items:center; gap:8px; font-size:14px; margin:10px 0}
-  .chk input{width:20px; height:20px; accent-color:var(--pink)}
-  .ask button{display:block; width:100%; margin:8px 0}
-  .thanks{padding:8px 2px 14px; font-weight:700}
-  .note{color:var(--sub); font-size:12.5px; line-height:1.55; margin-top:16px}
-  .note b{color:var(--ink)}
+  .big{font-size:40px; text-align:center; margin:10px 0}
+  .center{text-align:center}
+  .wait-t{font-size:20px; font-weight:800; text-align:center; margin:14px 0 4px}
+  .wait-s{font-size:14px; color:var(--sub); text-align:center; min-height:22px}
   [hidden]{display:none!important}
   input[type=file]{display:none}
 </style>
 </head>
 <body>
 <main>
-  <h1>내 그림으로 양말 시안 만들기 🧦</h1>
-  <p class="sub">그림을 올리고, 손가락으로 톡 눌러 보세요. 양말 위에서 그림이 움직여요.</p>
 
-  <section class="stage">
-    <canvas id="c" aria-label="양말 시안 미리보기"></canvas>
-    <div class="hint" id="hint">그림을 올리면 여기에 나타나요</div>
+  <div class="warn" id="testBanner" hidden>시험 모드예요. 답이 저장되지 않고 이 화면에서만 보여요.</div>
+
+  <!-- 0. 시작 -->
+  <section id="s-intro">
+    <h1>커플 데이트와<br>기념 아이템 이야기 🧦</h1>
+    <p class="sub">1~2분이면 끝나요. 정답은 없고 솔직하게 답해 주시면 돼요.<br>
+      마지막에는 <b>직접 고른 그림으로 양말 시안을 만들어 보는 체험</b>이 있어요.</p>
+    <div class="card">
+      <p class="sub" style="margin:0">연락처는 마지막에 원하시는 분만 적어요.<br>결과는 서비스 준비 자료로만 써요.</p>
+      <div class="row"><button class="grow" id="start" type="button">시작하기</button></div>
+    </div>
   </section>
 
-  <div class="row" id="step1">
-    <label class="btn grow" for="file1">📷 내 그림 올리기 (JPG·PNG)</label>
-    <button class="ghost grow" id="demoBtn" type="button">예시 그림으로 해 보기</button>
-  </div>
-  <input id="file1" type="file" accept="image/png,image/jpeg">
-  <input id="file2" type="file" accept="image/png,image/jpeg">
+  <!-- 설문 -->
+  <section id="s-q" hidden>
+    <div class="bar"><i id="bar"></i></div>
+    <div class="card">
+      <div class="step" id="qstep"></div>
+      <h2 id="qtext"></h2>
+      <div id="qopts"></div>
+      <div id="qextra" hidden></div>
+      <div class="nav">
+        <button class="line" id="back" type="button">이전</button>
+        <button class="grow" id="next" type="button">다음</button>
+      </div>
+    </div>
+  </section>
 
-  <section class="panel" id="tools" hidden>
-    <h2>🎨 이렇게 해 보세요</h2>
-    <div class="note" style="margin:0 0 6px">
-      <b>톡</b> 누르면 그 자리로 · <b>끌면</b> 따라 움직여요 · <b>두 손가락</b>으로 키우고 돌려요
+  <!-- 서비스 소개 -->
+  <section id="s-svc" hidden>
+    <div class="bar"><i id="bar2"></i></div>
+    <div class="card">
+      <div class="step">여기서 잠깐, 준비 중인 서비스를 소개할게요</div>
+      <canvas id="svcCv" width="700" height="300" style="margin-bottom:10px"></canvas>
+      <div class="svcbox" id="svcText"></div>
+      <ul class="specs" id="svcSpecs"></ul>
+      <div class="nav">
+        <button class="line" id="back2" type="button">이전</button>
+        <button class="grow" id="next2" type="button">다음</button>
+      </div>
     </div>
-    <div class="field">
-      <label><span>크기</span><span id="sv">100%</span></label>
-      <input id="size" type="range" min="20" max="300" value="100">
+  </section>
+
+  <!-- 종료(만 19세 미만) -->
+  <section id="s-end" hidden>
+    <div class="card center">
+      <div class="big">🙇</div>
+      <h2>참여해 주셔서 감사합니다!</h2>
+      <p class="sub">이 설문은 만 19세 이상 분들께 받고 있어요.</p>
     </div>
-    <div class="field">
-      <label><span>돌리기</span><span id="rv">0°</span></label>
-      <input id="rot" type="range" min="-180" max="180" value="0">
+  </section>
+
+  <!-- 시안 만들기(위치 잡기) -->
+  <section id="s-make" hidden>
+    <h1>이제 내 그림으로<br>양말 시안을 만들어 봐요</h1>
+    <p class="sub">그림을 올리고 양말 위에서 톡 눌러 위치를 잡아 보세요.</p>
+    <section class="stage">
+      <canvas id="c" aria-label="양말 시안 위치 잡기"></canvas>
+      <div class="hint" id="hint">그림을 올리면 여기에 나타나요</div>
+    </section>
+    <div class="row" id="step1">
+      <label class="btn grow" for="file1" id="up1">📷 내 그림 올리기 (JPG·PNG)</label>
+      <button class="ghost grow" id="demoBtn" type="button">예시 그림으로 해 보기</button>
     </div>
-    <div class="field">
-      <label><span>양말 색</span></label>
-      <div class="sw" id="sw"></div>
-    </div>
-    <label class="chk"><input type="checkbox" id="link" checked> 두 양말이 같이 움직이게</label>
+    <input id="file1" type="file" accept="image/png,image/jpeg">
+    <input id="file2" type="file" accept="image/png,image/jpeg">
+    <section class="panel" id="tools" hidden>
+      <h3>🎨 이렇게 해 보세요</h3>
+      <div class="note" style="margin:0 0 6px"><b>톡</b> 누르면 그 자리로 · <b>끌면</b> 따라 움직여요 · <b>두 손가락</b>으로 키우고 돌려요</div>
+      <div class="field"><label><span>크기</span><span id="sv">100%</span></label><input id="size" type="range" min="20" max="300" value="100"></div>
+      <div class="field"><label><span>돌리기</span><span id="rv">0°</span></label><input id="rot" type="range" min="-180" max="180" value="0"></div>
+      <div class="field"><label><span>양말 색</span></label><div class="sw" id="sw"></div></div>
+      <label class="chk"><input type="checkbox" id="link" checked><span>두 양말이 같이 움직이게</span></label>
+      <div class="row">
+        <button class="line" id="center" type="button">가운데로</button>
+        <button class="line" id="reset" type="button">처음으로</button>
+        <label class="btn line" for="file2">둘째 양말은 다른 그림</label>
+      </div>
+      <div class="row"><button class="grow" id="make" type="button">이대로 만들어 주세요 →</button></div>
+    </section>
+    <p class="note"><b>올린 그림은 이 폰 밖으로 나가지 않아요.</b> 저장도, 전송도 하지 않고 이 화면에서만 써요.</p>
+  </section>
+
+  <!-- 짜임 중 -->
+  <section id="s-wait" hidden>
+    <div class="stage"><canvas id="w" aria-label="양말을 짜는 중"></canvas></div>
+    <div class="wait-t" id="waitT">지금 짜임 중이에요 🧶</div>
+    <div class="wait-s" id="waitS">실을 고르고 있어요</div>
+    <div class="bar" style="margin-top:14px"><i id="waitBar"></i></div>
+  </section>
+
+  <!-- 완성: 실제 양말처럼 -->
+  <section id="s-show" hidden>
+    <h1 id="showT">양말 완성했어요! 🎉</h1>
+    <p class="sub" id="showSub">양말을 톡톡 눌러 보세요. 신어 볼 수도 있어요.</p>
+    <section class="stage">
+      <canvas id="s" aria-label="완성된 양말"></canvas>
+      <div class="hint" id="hint2">톡톡 눌러 보세요</div>
+    </section>
     <div class="row">
-      <button class="line" id="center" type="button">가운데로</button>
-      <button class="line" id="reset" type="button">처음으로</button>
-      <label class="btn line" for="file2" id="second">둘째 양말은 다른 그림</label>
+      <button class="ghost grow" id="wear" type="button">👣 신어 볼래요</button>
+      <button class="line grow" id="saveImg" type="button">🖼 저장하기</button>
     </div>
-    <div class="row">
-      <button class="ghost grow" id="save" type="button">🖼 시안 저장하기</button>
-      <button class="grow" id="done" type="button">다 만들었어요</button>
+    <div class="panel" id="skinBox" hidden>
+      <h3>피부색</h3>
+      <div class="sw" id="skinSw"></div>
+    </div>
+    <div class="row"><button class="grow" id="seen" type="button">다 봤어요 →</button></div>
+    <p class="note">이 화면은 <b>시안 예시</b>예요. 실제 인쇄는 색·크기·위치가 조금 다를 수 있어요.</p>
+  </section>
+
+  <!-- 마지막 한 문항 -->
+  <section id="s-last" hidden>
+    <div class="card" id="lastCard">
+      <div class="step">마지막 한 문항이에요</div>
+      <h2 id="lastQ"></h2>
+      <div id="lastOpts"></div>
+    </div>
+    <div class="card center" id="thanks" hidden>
+      <div class="big">🧦</div>
+      <h2>참여해 주셔서 정말 감사합니다!</h2>
+      <p class="sub" id="thanksSub"></p>
     </div>
   </section>
 
-  <section class="panel ask" id="ask" hidden>
-    <h2 id="askQ"></h2>
-    <div id="askBtns"></div>
-    <div class="thanks" id="thanks" hidden></div>
-  </section>
-
-  <p class="note">
-    <b>올린 그림은 이 폰 밖으로 나가지 않아요.</b> 저장도, 전송도 하지 않고 이 화면에서만 써요.<br>
-    이 화면은 <b>시안 예시</b>예요. 실제 인쇄는 색·크기·위치가 조금 다를 수 있어요.
-  </p>
 </main>
 
 <script>
-/* ===== 설정 (만든 사람이 채우는 곳) ===========================================
-   PRICE_TEXT      : 마지막 질문에 보일 제안가. 예) '커플 세트(2켤레) 29,000원'. 비워 두면 가격 문구 없이 물어요.
-   ANSWER_ENDPOINT : 구글폼 「formResponse」 주소. 예) https://docs.google.com/forms/d/e/XXXX/formResponse
-   ANSWER_ENTRY    : 그 폼의 「마지막 한 문항」 입력칸 이름. 예) entry.1234567890
-   두 칸을 비워 두면 답은 어디에도 저장되지 않아요(시험용).
-   ======================================================================== */
-const CONFIG = { PRICE_TEXT: '', ANSWER_ENDPOINT: '', ANSWER_ENTRY: '' };
+/* ===== 설정 (만든 사람이 채우는 곳) ============================================
+   SERVICE_TEXT  : 서비스 소개 문장. 사업계획서의 문장과 똑같이 맞추세요.
+   SPECS         : 소개 아래에 보일 사양 3줄(완성 모습 · 만드는 시간 · 세탁 안내).
+   PRICE_TEXT    : 제안가. 예) '29,000원'. 비워 두면 질문에 「[제안가]」라고 그대로 보여요(시험용 표시).
+   FORM_ACTION   : 답을 받을 구글폼의 「formResponse」 주소.
+   ENTRY_JSON    : 그 구글폼 「장문형 질문 1개」의 입력칸 이름. 예) entry.1234567890
+   ※ FORM_ACTION · ENTRY_JSON 이 비어 있으면 답은 어디에도 저장되지 않아요(시험 모드).
+   ========================================================================== */
+const CONFIG = {
+  SERVICE_TEXT: '짜임은 둘이 고른 그림이나 사진을 양말에 바로 인쇄해서, 한 켤레부터 우리만의 양말로 만들어 주는 서비스예요.',
+  SPECS: ['완성 모습: [사진·샘플로 보여 드릴 예정]', '만드는 데 걸리는 시간: [○○분]', '세탁: [세탁 안내]'],
+  PRICE_TEXT: '',
+  RETENTION: '[보유 기간을 정해서 적기: 안내 후 즉시, 늦어도 ○개월 안]',
+  FORM_ACTION: '',
+  ENTRY_JSON: ''
+};
 
 (() => {
-  // ---- 그림판 크기(논리 좌표) ----
+  const $ = id => document.getElementById(id);
+  const SCREENS = ['intro','q','svc','end','make','wait','show','last'];
+  function go(n){ SCREENS.forEach(s => $('s-' + s).hidden = (s !== n)); window.scrollTo(0, 0); cur = n; wake(); }
+  let cur = 'intro';
+
+  /* ---------------- 응답 저장 ---------------- */
+  const respId = Math.random().toString(36).slice(2, 10);
+  const srcParam = new URLSearchParams(location.search).get('l') || '';
+  const SRC = ({a: '현장', b: '지인', c: '온라인'})[srcParam] || '미지정';
+  const configured = !!(CONFIG.FORM_ACTION && CONFIG.ENTRY_JSON);
+  if (!configured) $('testBanner').hidden = false;
+  const sent = [];
+  function post(kind, payload){
+    const body = JSON.stringify(Object.assign({id: respId, kind: kind, src: SRC, t: new Date().toISOString()}, payload));
+    sent.push(body);
+    if (configured){
+      const fd = new FormData(); fd.append(CONFIG.ENTRY_JSON, body);
+      fetch(CONFIG.FORM_ACTION, {method: 'POST', mode: 'no-cors', body: fd}).catch(() => {});
+    }
+  }
+
+  /* ---------------- 설문 ---------------- */
+  const A = {};                                   // 답
+  const priceStr = CONFIG.PRICE_TEXT || '[제안가]원';
+  const has = (k, v) => Array.isArray(A[k]) && A[k].includes(v);
+  const QS = [
+    {id:'status', type:'single', text:'지금 연애 상태는?', opts:['연애 중','최근 1년 안에 연애했다','썸·소개팅 중','해당 없음']},
+    {id:'age', type:'single', text:'연령대는?', opts:['만 19세 미만','20대 초반','20대 후반','30대 초반','30대 후반 이상']},
+    {id:'dates', type:'multi', text:'최근 1년 안에 해 본 「색다른 데이트」를 모두 골라 주세요.',
+      opts:['팝업스토어','원데이클래스·공방 체험','전시·체험관','인생네컷·스티커사진','방탈출·보드게임·VR','커플 스냅 촬영','여행·캠핑','기타','해 본 적 없음'], excl:['해 본 적 없음']},
+    {id:'custom', type:'multi', text:'최근 1년 안에 연인과 함께하거나 연인에게 주려고 「맞춤으로 만든」 물건이 있나요?',
+      opts:['커플 의류(티셔츠·커플룩)','이름·사진·문구를 새긴 물건(머그·폰케이스·키링 등)','직접 손으로 만든 선물','맞춤 양말','기타','없다'], excl:['없다']},
+    {id:'regret', type:'multi', max:2, text:'만들면서 가장 아쉬웠던 점은? (최대 2개)', show: () => !has('custom','없다'),
+      opts:['가격','오래 걸림','최소 주문 수량이 많음','디자인 작업이 번거로움','품질(번짐·색)','아쉬운 점 없었다','기타'], excl:['아쉬운 점 없었다']},
+    {id:'why_not', type:'single', text:'안 해 본 가장 큰 이유는?', show: () => has('custom','없다'),
+      opts:['필요가 없었다','비쌀 것 같다','어디서 하는지 몰랐다','번거롭다','기타']},
+    {id:'__svc', type:'info'},
+    {id:'use', type:'multi', text:'쓴다면 어떤 때일 것 같나요?',
+      opts:['기념일(100일·1주년 등) 선물','데이트 중에 같이 만드는 체험','커플룩·커플템','친구·가족 선물','쓸 일 없다'], excl:['쓸 일 없다']},
+    {id:'way', type:'single', text:'어떤 방식이 가장 좋나요?',
+      opts:['데이트 중에 현장에서 같이 만들고 바로 받기','날짜를 예약하고 가서 받기','인터넷 주문 후 택배','잘 모르겠다']},
+    {id:'buy', type:'single', text:'커플 세트(2켤레)가 ' + priceStr + '이라면 사실 건가요?',
+      opts:['꼭 살 것 같다','아마 살 것 같다','모르겠다','안 살 것 같다'],
+      extra:{when:['모르겠다','안 살 것 같다'], id:'buy_price', label:'얼마라면 살 만할까요? (원 · 선택)', input:'number'}},
+    {id:'hesitate', type:'multi', text:'망설이게 하는 것이 있다면?',
+      opts:['가격','세탁하면 번지거나 벗겨질까 걱정','걸리는 시간','그림 고르기·만들기가 귀찮음','배송','필요 없음','기타','없다'], excl:['없다']},
+    {id:'notify', type:'contact', text:'서비스가 시작되거나 체험 자리가 생기면 알려 드릴까요?',
+      opts:['알려 주세요(연락처 입력)','괜찮아요']},
+    {id:'free', type:'text', text:'하고 싶은 말이 있다면 자유롭게 적어 주세요. (선택)'}
+  ];
+  const vis = () => QS.map((q, i) => i).filter(i => !QS[i].show || QS[i].show());
+  let qi = 0; const hist = [];
+
+  function startSurvey(){ qi = 0; hist.length = 0; renderQ(); }
+  function renderProgress(){
+    const v = vis(), pos = v.indexOf(qi) + 1, pct = Math.round(pos / (v.length + 1) * 100);
+    $('bar').style.width = pct + '%'; $('bar2').style.width = pct + '%';
+    return {pos: pos, total: v.length};
+  }
+  function renderQ(){
+    const q = QS[qi];
+    if (q.type === 'info'){ renderSvc(); go('svc'); return; }
+    go('q');
+    const p = renderProgress();
+    $('qstep').textContent = p.pos + ' / ' + p.total;
+    $('qtext').textContent = q.text;
+    const box = $('qopts'); box.innerHTML = ''; const ex = $('qextra'); ex.innerHTML = ''; ex.hidden = true;
+    $('back').disabled = hist.length === 0;
+    const sel = () => A[q.id];
+    const update = () => { $('next').disabled = !valid(q); };
+
+    if (q.type === 'single' || q.type === 'multi' || q.type === 'contact'){
+      q.opts.forEach(o => {
+        const b = document.createElement('button'); b.type = 'button'; b.className = 'opt';
+        const mark = q.type === 'multi' ? '<span class="m">☐</span>' : '';
+        b.innerHTML = mark; b.appendChild(document.createTextNode(o));
+        const on = () => q.type === 'multi' ? (sel() || []).includes(o) : sel() === o;
+        const paint = () => {
+          b.classList.toggle('on', on());
+          if (q.type === 'multi') b.querySelector('.m').textContent = on() ? '☑' : '☐';
+        };
+        b.addEventListener('click', () => {
+          if (q.type === 'multi'){
+            let cur2 = (sel() || []).slice();
+            if (cur2.includes(o)) cur2 = cur2.filter(x => x !== o);
+            else {
+              if (q.excl && q.excl.includes(o)) cur2 = [o];
+              else { cur2 = cur2.filter(x => !(q.excl || []).includes(x)); if (q.max && cur2.length >= q.max) return; cur2.push(o); }
+            }
+            A[q.id] = cur2;
+            [...box.children].forEach(c => c._paint && c._paint());
+          } else {
+            A[q.id] = o; [...box.children].forEach(c => c._paint && c._paint());
+          }
+          buildExtra(); update();
+          if (q.type === 'single' && !(q.extra && q.extra.when.includes(o))) setTimeout(next, 180);
+        });
+        b._paint = paint; paint(); box.appendChild(b);
+      });
+    } else if (q.type === 'text'){
+      const t = document.createElement('textarea'); t.placeholder = '자유롭게 적어 주세요'; t.value = A[q.id] || '';
+      t.addEventListener('input', () => { A[q.id] = t.value; }); box.appendChild(t);
+    }
+    function buildExtra(){
+      ex.innerHTML = '';
+      if (q.extra && q.extra.when.includes(sel())){
+        ex.hidden = false;
+        const l = document.createElement('div'); l.className = 'sub'; l.style.marginTop = '10px'; l.textContent = q.extra.label;
+        const i = document.createElement('input'); i.type = 'number'; i.inputMode = 'numeric'; i.placeholder = '예) 20000'; i.value = A[q.extra.id] || '';
+        i.addEventListener('input', () => { A[q.extra.id] = i.value; });
+        ex.appendChild(l); ex.appendChild(i);
+      } else if (q.type === 'contact' && sel() === q.opts[0]){
+        ex.hidden = false;
+        const i = document.createElement('input'); i.type = 'text'; i.placeholder = '휴대폰 번호 또는 카카오 ID'; i.value = A.contact || '';
+        i.addEventListener('input', () => { A.contact = i.value; update(); });
+        const c = document.createElement('label'); c.className = 'chk';
+        c.innerHTML = '<input type="checkbox" id="consent"><span><b>개인정보 수집·이용에 동의합니다.</b><br>· 수집 항목: 연락처(휴대폰 번호 또는 카카오 ID)<br>· 이용 목적: 서비스 시작·체험 일정 안내<br>· 보유 기간: ' + CONFIG.RETENTION + '<br>· 동의하지 않아도 설문에는 참여할 수 있고, 불이익이 없어요.</span>';
+        ex.appendChild(i); ex.appendChild(c);
+        c.querySelector('input').checked = !!A.consent;
+        c.querySelector('input').addEventListener('change', e => { A.consent = e.target.checked; update(); });
+      }
+    }
+    buildExtra(); update();
+    $('next').textContent = qi === QS.length - 1 ? '끝내고 시안 만들기' : '다음';
+  }
+  function valid(q){
+    if (q.type === 'text') return true;
+    const v = A[q.id];
+    if (q.type === 'multi') return Array.isArray(v) && v.length > 0;
+    if (!v) return false;
+    if (q.type === 'contact' && v === q.opts[0]) return !!(A.contact && A.contact.trim()) && !!A.consent;
+    return true;
+  }
+  function next(){
+    const q = QS[qi];
+    if (q.type !== 'info' && !valid(q)) return;
+    if (q.id === 'age' && A.age === '만 19세 미만'){ go('end'); return; }
+    if (q.id === 'notify' && A.notify !== q.opts[0]){ delete A.contact; delete A.consent; }
+    hist.push(qi);
+    const v = vis(), idx = v.indexOf(qi);
+    if (idx < 0 || idx === v.length - 1){ finishSurvey(); return; }
+    qi = v[idx + 1]; renderQ();
+  }
+  function back(){ if (!hist.length) return; qi = hist.pop(); renderQ(); }
+  $('next').addEventListener('click', next); $('back').addEventListener('click', back);
+  $('next2').addEventListener('click', next); $('back2').addEventListener('click', back);
+  $('start').addEventListener('click', startSurvey);
+
+  function finishSurvey(){
+    const a = Object.assign({}, A);
+    if (a.notify !== '알려 주세요(연락처 입력)'){ delete a.contact; delete a.consent; }
+    post('survey', {a: a});
+    go('make'); initMake();
+  }
+
+  function renderSvc(){
+    renderProgress();
+    $('svcText').textContent = CONFIG.SERVICE_TEXT;
+    const ul = $('svcSpecs'); ul.innerHTML = '';
+    CONFIG.SPECS.forEach(s => { const li = document.createElement('li'); li.textContent = s; ul.appendChild(li); });
+    $('back2').disabled = hist.length === 0;
+    drawSvc();
+  }
+  function drawSvc(){
+    const c = $('svcCv'), x = c.getContext('2d'); c.width = 700; c.height = 300;
+    x.fillStyle = '#fffdfc'; x.fillRect(0, 0, 700, 300);
+    x.save(); x.translate(60, -4); x.scale(.75, .75); drawFlatSock(x, 0, true, tmpState()); x.restore();
+    x.save(); x.translate(360, -4); x.scale(.75, .75); drawFlatSock(x, 1, true, tmpState()); x.restore();
+  }
+  function tmpState(){
+    const im = sampleImage();
+    return {color: 1, sel: -1, guide: false, imgs: [im, im], t: [newT(), newT()]};
+  }
+
+  /* ---------------- 공통: 양말 모양 ---------------- */
   const W = 700, H = 440;
-  const SOCK_W = 300;
-  const ORIGINS = [{x:36, y:14}, {x:364, y:14}];
-  // 양말 한 짝(옆모습) 윤곽. 0..300 x 0..380
   const SOCK_PATH = 'M70,0 L190,0 L190,225 C190,245 205,252 225,256 C268,262 296,282 296,312 C296,342 272,356 240,356 L96,356 C70,356 54,340 54,314 C54,290 66,276 70,250 Z';
-  const PRINT = {x:76, y:54, w:108, h:158, r:14};          // 인쇄 가능 영역(예시)
-  const CENTER = {x: PRINT.x + PRINT.w/2, y: PRINT.y + PRINT.h/2};
+  const LEG_PATH  = 'M84,-170 L176,-170 L176,230 C176,248 190,254 210,258 C250,264 282,280 282,309 C282,334 260,344 232,344 L104,344 C82,344 68,330 68,309 C68,288 78,276 84,252 Z';
+  const PRINT = {x:76, y:54, w:108, h:158, r:14};
+  const CENTER = {x: PRINT.x + PRINT.w / 2, y: PRINT.y + PRINT.h / 2};
   const COLORS = [
     {name:'흰색',   base:'#f7f5f2', accent:'#e7e2dc'},
     {name:'연핑크', base:'#fadbe2', accent:'#f2bccb'},
     {name:'하늘색', base:'#dbeaf7', accent:'#bad2ea'},
     {name:'연회색', base:'#e6e7ea', accent:'#c9cbd1'},
   ];
-
-  const $ = id => document.getElementById(id);
-  const cv = $('c'), ctx = cv.getContext('2d');
-  const dpr = Math.min(window.devicePixelRatio || 1, 2);
-  cv.width = W * dpr; cv.height = H * dpr;
-  cv.style.aspectRatio = W + ' / ' + H;
-
+  const SKINS = ['#f6dcc8', '#e8bf9e', '#c58b63', '#7d4e35'];
+  const sockPath = new Path2D(SOCK_PATH), legPath = new Path2D(LEG_PATH);
   const newT = () => ({x: CENTER.x, y: CENTER.y, s: 1, r: 0});
-  const state = {
-    imgs: [null, null],           // 양말별 그림
-    t: [newT(), newT()],
-    sel: 0,
-    color: 0,
-    link: true,
-    guide: true,
-  };
-  const sockPath = new Path2D(SOCK_PATH);
+  const S = { imgs: [null, null], t: [newT(), newT()], sel: 0, color: 0, link: true, guide: true, skin: 1 };
 
-  // ---- 그리기 ----
   function rr(c, x, y, w, h, r){
-    c.beginPath(); c.moveTo(x+r,y); c.arcTo(x+w,y,x+w,y+h,r); c.arcTo(x+w,y+h,x,y+h,r);
-    c.arcTo(x,y+h,x,y,r); c.arcTo(x,y,x+w,y,r); c.closePath();
+    c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r);
+    c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath();
   }
-  function knitPattern(c){
-    const p = document.createElement('canvas'); p.width = 6; p.height = 6;
-    const q = p.getContext('2d');
-    q.strokeStyle = 'rgba(0,0,0,.07)'; q.lineWidth = 1;
-    q.beginPath(); q.moveTo(0,6); q.lineTo(6,0); q.stroke();
-    q.beginPath(); q.moveTo(-1,1); q.lineTo(1,-1); q.stroke();
-    q.beginPath(); q.moveTo(5,7); q.lineTo(7,5); q.stroke();
-    return c.createPattern(p, 'repeat');
-  }
-  const pattern = knitPattern(ctx);
+  const mk = (w, h, fn) => { const c = document.createElement('canvas'); c.width = w; c.height = h; fn(c.getContext('2d')); return c; };
+  const flatTile = mk(6, 6, q => { q.strokeStyle = 'rgba(0,0,0,.07)'; q.beginPath(); q.moveTo(0,6); q.lineTo(6,0); q.stroke(); q.beginPath(); q.moveTo(-1,1); q.lineTo(1,-1); q.stroke(); q.beginPath(); q.moveTo(5,7); q.lineTo(7,5); q.stroke(); });
+  const chevTile = mk(8, 8, q => { q.strokeStyle = 'rgba(0,0,0,.11)'; q.lineWidth = 1; q.beginPath(); q.moveTo(0,1); q.lineTo(4,6); q.lineTo(8,1); q.stroke();
+    q.strokeStyle = 'rgba(255,255,255,.34)'; q.beginPath(); q.moveTo(0,0); q.lineTo(4,5); q.lineTo(8,0); q.stroke(); });
+  const mctx = document.createElement('canvas').getContext('2d');
+  const flatPat = mctx.createPattern(flatTile, 'repeat'), chevPat = mctx.createPattern(chevTile, 'repeat');
 
-  function drawSock(c, i, forExport){
-    const o = ORIGINS[i], col = COLORS[state.color], img = state.imgs[i], t = state.t[i];
-    c.save(); c.translate(o.x, o.y);
-
-    // 몸통
+  /* ---------------- 1) 위치 잡기용 납작한 양말 ---------------- */
+  function drawFlatSock(c, i, forExport, st){
+    st = st || S;
+    const o = ORIG[i], col = COLORS[st.color], img = st.imgs[i], t = st.t[i];
+    c.save(); c.translate(forExport === true ? 0 : o.x, forExport === true ? 0 : o.y);
     c.fillStyle = col.base; c.fill(sockPath);
     c.save(); c.clip(sockPath);
-    // 뒤꿈치·발끝·입구 포인트
     c.fillStyle = col.accent;
-    c.beginPath(); c.ellipse(78, 322, 52, 62, 0, 0, Math.PI*2); c.fill();
-    c.beginPath(); c.ellipse(282, 316, 38, 54, 0, 0, Math.PI*2); c.fill();
+    c.beginPath(); c.ellipse(78, 322, 52, 62, 0, 0, Math.PI * 2); c.fill();
+    c.beginPath(); c.ellipse(282, 316, 38, 54, 0, 0, Math.PI * 2); c.fill();
     c.fillRect(60, 0, 140, 40);
-    // 입구 골
     c.strokeStyle = 'rgba(0,0,0,.09)'; c.lineWidth = 1.2;
     for (let x = 74; x < 190; x += 7){ c.beginPath(); c.moveTo(x, 2); c.lineTo(x, 38); c.stroke(); }
-
-    // 인쇄(곱하기: 흰 배경 JPG도 양말에 자연스럽게 섞임)
     if (img){
-      c.save();
-      rr(c, PRINT.x, PRINT.y, PRINT.w, PRINT.h, PRINT.r); c.clip();
-      c.globalCompositeOperation = 'multiply';
-      const base = Math.min(PRINT.w / img.width, PRINT.h / img.height);
-      const w = img.width * base * t.s, h = img.height * base * t.s;
-      c.translate(t.x, t.y); c.rotate(t.r * Math.PI / 180);
-      c.drawImage(img, -w/2, -h/2, w, h);
-      c.restore();
+      c.save(); rr(c, PRINT.x, PRINT.y, PRINT.w, PRINT.h, PRINT.r); c.clip(); c.globalCompositeOperation = 'multiply';
+      const base = Math.min(PRINT.w / img.width, PRINT.h / img.height), w = img.width * base * t.s, h = img.height * base * t.s;
+      c.translate(t.x, t.y); c.rotate(t.r * Math.PI / 180); c.drawImage(img, -w / 2, -h / 2, w, h); c.restore();
     }
-    // 실 질감 + 입체감
-    c.fillStyle = pattern; c.fill(sockPath);
+    c.fillStyle = flatPat; c.fill(sockPath);
     const g = c.createLinearGradient(54, 0, 296, 0);
     g.addColorStop(0, 'rgba(255,255,255,.28)'); g.addColorStop(.55, 'rgba(255,255,255,0)'); g.addColorStop(1, 'rgba(0,0,0,.10)');
-    c.fillStyle = g; c.fill(sockPath);
-    c.restore();
+    c.fillStyle = g; c.fill(sockPath); c.restore();
     c.strokeStyle = 'rgba(60,40,48,.28)'; c.lineWidth = 1.6; c.stroke(sockPath);
-
-    // 안내선(저장할 때는 숨김)
-    if (!forExport && state.guide){
-      c.save(); c.setLineDash([5,4]); c.lineWidth = 1.5;
-      c.strokeStyle = i === state.sel ? 'rgba(232,74,111,.95)' : 'rgba(232,74,111,.35)';
+    if (!forExport && st.guide){
+      c.save(); c.setLineDash([5, 4]); c.lineWidth = 1.5;
+      c.strokeStyle = i === st.sel ? 'rgba(232,74,111,.95)' : 'rgba(232,74,111,.35)';
       rr(c, PRINT.x, PRINT.y, PRINT.w, PRINT.h, PRINT.r); c.stroke(); c.restore();
-      if (!img){
-        c.fillStyle = 'rgba(232,74,111,.75)'; c.font = '600 11px sans-serif'; c.textAlign = 'center';
-        c.fillText('인쇄 영역', CENTER.x, CENTER.y + 4);
-      }
+      if (!img){ c.fillStyle = 'rgba(232,74,111,.75)'; c.font = '600 11px sans-serif'; c.textAlign = 'center'; c.fillText('인쇄 영역', CENTER.x, CENTER.y + 4); }
     }
-    // 이름표
-    c.fillStyle = (i === state.sel && !forExport) ? '#e84a6f' : '#8d7b81';
-    c.font = ((i === state.sel && !forExport) ? '700 ' : '500 ') + '14px sans-serif'; c.textAlign = 'center';
-    c.fillText('양말 ' + (i + 1), 150, 392);
+    if (forExport !== true){
+      c.fillStyle = (i === st.sel) ? '#e84a6f' : '#8d7b81'; c.font = ((i === st.sel) ? '700 ' : '500 ') + '14px sans-serif'; c.textAlign = 'center';
+      c.fillText('양말 ' + (i + 1), 150, 392);
+    }
     c.restore();
   }
+  const ORIG = [{x: 36, y: 14}, {x: 364, y: 14}];
 
-  function render(c, forExport){
-    c.clearRect(0, 0, W, H);
-    c.fillStyle = '#fffdfc'; c.fillRect(0, 0, W, H);
-    drawSock(c, 0, forExport); drawSock(c, 1, forExport);
-  }
-  let dirty = true;
-  function paint(){ if (dirty){ ctx.setTransform(dpr,0,0,dpr,0,0); render(ctx, false); dirty = false; } requestAnimationFrame(paint); }
-  const redraw = () => { dirty = true; };
-
-  // ---- 입력(톡·끌기·두 손가락) ----
-  function toLogical(e){
-    const r = cv.getBoundingClientRect();
-    return {x: (e.clientX - r.left) * W / r.width, y: (e.clientY - r.top) * H / r.height};
-  }
-  function sockAt(p){
+  /* ---------------- 2) 실제 양말처럼 ---------------- */
+  const UN = {ox: [36, 364], oy: 14, s: 1};
+  const WO = {ox: [32, 360], oy: 92, s: .86};
+  const printLayer = [null, null];
+  function buildPrint(){
     for (let i = 0; i < 2; i++){
-      const o = ORIGINS[i];
-      if (p.x >= o.x - 10 && p.x <= o.x + SOCK_W - 4) return i;
+      const k = 4, p = document.createElement('canvas'); p.width = PRINT.w * k; p.height = PRINT.h * k;
+      const q = p.getContext('2d'); q.fillStyle = '#fff'; q.fillRect(0, 0, p.width, p.height);
+      const img = S.imgs[i], t = S.t[i];
+      if (img){
+        const base = Math.min(PRINT.w / img.width, PRINT.h / img.height), w = img.width * base * t.s * k, h = img.height * base * t.s * k;
+        q.save(); q.translate((t.x - PRINT.x) * k, (t.y - PRINT.y) * k); q.rotate(t.r * Math.PI / 180); q.drawImage(img, -w / 2, -h / 2, w, h); q.restore();
+      }
+      // 다리가 둥글어서 가장자리가 살짝 좁아 보이게 휘어 미리 한 장으로 만들어 둔다(이음새 줄무늬 방지)
+      const R = 78, N = 56, half = R * Math.sin((PRINT.w / 2) / R), dw = half * 2, cw = Math.ceil(dw * k), ch = PRINT.h * k;
+      const cyl = document.createElement('canvas'); cyl.width = cw; cyl.height = ch; const g = cyl.getContext('2d');
+      g.fillStyle = '#fff'; g.fillRect(0, 0, cw, ch);
+      for (let j = 0; j < N; j++){
+        const u0 = (j / N - .5) * PRINT.w, u1 = ((j + 1) / N - .5) * PRINT.w;
+        const d0 = (R * Math.sin(u0 / R) + half) * k, d1 = (R * Math.sin(u1 / R) + half) * k;
+        g.drawImage(p, j * p.width / N, 0, p.width / N, p.height, d0, 0, Math.max(1, d1 - d0) + 1, ch);
+      }
+      printLayer[i] = {cv: cyl, x: CENTER.x - half, w: dw};
     }
-    return null;
   }
-  const ptrs = new Map();
-  let gest = null;
-  function sync(i){                                // 같이 움직이기
-    if (state.link && state.imgs[0] && state.imgs[0] === state.imgs[1]){
-      const j = 1 - i; state.t[j] = {...state.t[i]};
-    }
+  function drawCylPrint(c, i){
+    const L = printLayer[i]; if (!L) return;
+    c.save(); c.globalCompositeOperation = 'multiply'; c.drawImage(L.cv, L.x, PRINT.y, L.w, PRINT.h); c.restore();
   }
-  function uiFromT(){
-    const t = state.t[state.sel];
-    $('size').value = Math.round(t.s * 100); $('sv').textContent = Math.round(t.s * 100) + '%';
-    let d = Math.round(t.r); while (d > 180) d -= 360; while (d < -180) d += 360;
-    $('rot').value = d; $('rv').textContent = d + '°';
+  function drawRealSock(c, i, L, sq, rot){
+    const col = COLORS[S.color];
+    c.save();
+    c.translate(L.ox + 150 * L.s, L.oy + 300 * L.s); if (rot) c.rotate(rot); c.scale(L.s, L.s); c.translate(-150, -300);
+    if (sq){ c.translate(sq.px, sq.py); c.rotate(sq.rot); c.scale(sq.sx, sq.sy); c.translate(-sq.px, -sq.py); }
+    c.fillStyle = col.base; c.fill(sockPath);
+    c.save(); c.clip(sockPath);
+    // 뒤꿈치·발끝
+    let g = c.createRadialGradient(70, 312, 6, 76, 322, 66); g.addColorStop(0, col.accent); g.addColorStop(1, col.accent + '00');
+    c.fillStyle = col.accent; c.beginPath(); c.ellipse(78, 322, 52, 62, 0, 0, Math.PI * 2); c.fill();
+    c.beginPath(); c.ellipse(282, 316, 38, 54, 0, 0, Math.PI * 2); c.fill();
+    // 입구 골(고무단)
+    c.fillStyle = col.accent; c.fillRect(60, 0, 140, 42);
+    for (let x = 71, k = 0; x < 190; x += 4.6, k++){ c.fillStyle = k % 2 ? 'rgba(0,0,0,.09)' : 'rgba(255,255,255,.28)'; c.fillRect(x, 0, 2.4, 42); }
+    g = c.createLinearGradient(0, 40, 0, 56); g.addColorStop(0, 'rgba(0,0,0,.22)'); g.addColorStop(1, 'rgba(0,0,0,0)'); c.fillStyle = g; c.fillRect(60, 40, 140, 16);
+    c.fillStyle = 'rgba(0,0,0,.20)'; c.fillRect(60, 40, 140, 1.4);
+    drawCylPrint(c, i);
+    // 실 질감
+    c.fillStyle = chevPat; c.globalAlpha = .9; c.fill(sockPath); c.globalAlpha = 1;
+    // 다리 둥근 느낌
+    g = c.createLinearGradient(70, 0, 190, 0);
+    g.addColorStop(0, 'rgba(0,0,0,.15)'); g.addColorStop(.18, 'rgba(0,0,0,.03)'); g.addColorStop(.42, 'rgba(255,255,255,.30)'); g.addColorStop(.78, 'rgba(0,0,0,.03)'); g.addColorStop(1, 'rgba(0,0,0,.17)');
+    c.fillStyle = g; c.fillRect(60, 0, 140, 245);
+    // 발 둥근 느낌
+    g = c.createLinearGradient(0, 238, 0, 358); g.addColorStop(0, 'rgba(255,255,255,.26)'); g.addColorStop(.5, 'rgba(255,255,255,0)'); g.addColorStop(1, 'rgba(0,0,0,.16)');
+    c.fillStyle = g; c.fillRect(50, 238, 260, 124);
+    // 주름
+    c.lineCap = 'round';
+    [[[72,206],[100,216],[126,207]], [[170,224],[182,236],[192,232]], [[60,300],[80,291],[98,299]], [[210,262],[228,268],[246,266]]].forEach(w => {
+      c.strokeStyle = 'rgba(0,0,0,.10)'; c.lineWidth = 2.4; c.beginPath(); c.moveTo(w[0][0], w[0][1]); c.quadraticCurveTo(w[1][0], w[1][1], w[2][0], w[2][1]); c.stroke();
+      c.strokeStyle = 'rgba(255,255,255,.38)'; c.lineWidth = 1.2; c.beginPath(); c.moveTo(w[0][0], w[0][1] - 2); c.quadraticCurveTo(w[1][0], w[1][1] - 2, w[2][0], w[2][1] - 2); c.stroke();
+    });
+    // 반짝임
+    g = c.createLinearGradient(80, 0, 96, 0); g.addColorStop(0, 'rgba(255,255,255,0)'); g.addColorStop(.5, 'rgba(255,255,255,.30)'); g.addColorStop(1, 'rgba(255,255,255,0)');
+    c.fillStyle = g; c.fillRect(80, 46, 16, 170);
+    // 눌린 자국
+    if (sq && sq.dent){ const d = sq.dent, r = 46 + 12 * (1 - d.a);
+      const dg = c.createRadialGradient(d.x, d.y, 2, d.x, d.y, r); dg.addColorStop(0, 'rgba(0,0,0,' + (.30 * d.a) + ')'); dg.addColorStop(.6, 'rgba(0,0,0,' + (.10 * d.a) + ')'); dg.addColorStop(1, 'rgba(0,0,0,0)');
+      c.fillStyle = dg; c.fillRect(d.x - r, d.y - r, r * 2, r * 2); }
+    c.restore();
+    c.strokeStyle = 'rgba(60,40,48,.38)'; c.lineWidth = 1.7; c.lineJoin = 'round'; c.stroke(sockPath);
+    c.restore();
   }
-  const hasImg = () => !!(state.imgs[0] || state.imgs[1]);
+  function drawLeg(c, i, L, alpha){
+    if (alpha <= 0) return;
+    c.save(); c.globalAlpha = alpha;
+    c.translate(WO.ox[i] + 150 * WO.s, WO.oy + 300 * WO.s); c.scale(WO.s, WO.s); c.translate(-150, -300);
+    const sk = SKINS[S.skin];
+    c.fillStyle = sk; c.fill(legPath);
+    c.save(); c.clip(legPath);
+    let g = c.createLinearGradient(84, 0, 176, 0);
+    g.addColorStop(0, 'rgba(0,0,0,.22)'); g.addColorStop(.25, 'rgba(0,0,0,.02)'); g.addColorStop(.45, 'rgba(255,255,255,.20)'); g.addColorStop(1, 'rgba(0,0,0,.26)');
+    c.fillStyle = g; c.fillRect(60, -180, 140, 440);
+    g = c.createLinearGradient(0, 240, 0, 346); g.addColorStop(0, 'rgba(255,255,255,.14)'); g.addColorStop(1, 'rgba(0,0,0,.26)'); c.fillStyle = g; c.fillRect(60, 240, 240, 110);
+    c.restore();
+    c.strokeStyle = 'rgba(60,40,48,.22)'; c.lineWidth = 1.4; c.stroke(legPath);
+    // 양말 입구 아래 살짝 눌린 그림자
+    const cg = c.createLinearGradient(0, -16, 0, 6); cg.addColorStop(0, 'rgba(0,0,0,0)'); cg.addColorStop(1, 'rgba(0,0,0,.22)');
+    c.fillStyle = cg; c.fillRect(84, -16, 92, 22);
+    c.restore();
+  }
+  function ground(c, ox, oy, s, alpha){
+    c.save(); c.globalAlpha = alpha; c.fillStyle = 'rgba(80,50,60,.16)';
+    c.beginPath(); c.ellipse(ox + 160 * s, oy + 366 * s, 128 * s, 11 * s, 0, 0, Math.PI * 2); c.fill(); c.restore();
+  }
 
+  // 톡톡(눌림 반응)
+  const sqz = [null, null];
+  function poke(i, lx, ly){
+    sqz[i] = {t0: performance.now(), x: Math.max(60, Math.min(300, lx)), y: Math.max(10, Math.min(350, ly))};
+    if (navigator.vibrate) try { navigator.vibrate(14); } catch (_) {}
+    wake();
+  }
+  function sqNow(i, now){
+    const s = sqz[i]; if (!s) return null;
+    const dt = (now - s.t0) / 1000; if (dt > 1.3){ sqz[i] = null; return null; }
+    const e = Math.exp(-5.2 * dt), w = Math.sin(21 * dt);
+    return {px: s.x, py: s.y, sx: 1 + .12 * e * w, sy: 1 - .15 * e * w, rot: .05 * e * Math.sin(15 * dt) * (s.x > 150 ? 1 : -1), dent: {x: s.x, y: s.y, a: e}};
+  }
+
+  const show = { worn: false, p: 0, anim: null, reveal: 0, sparks: [], tReveal: 0 };
+  const ease = {
+    outBack: x => { const c1 = 1.5, c3 = c1 + 1; return 1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2); },
+    inOut: x => x < .5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2,
+    out: x => 1 - Math.pow(1 - x, 3)
+  };
+  function layoutAt(i, p){
+    return {ox: UN.ox[i] + (WO.ox[i] - UN.ox[i]) * p, oy: UN.oy + (WO.oy - UN.oy) * p, s: 1 + (WO.s - 1) * p};
+  }
+  function renderShow(c, now, forExport){
+    c.clearRect(0, 0, W, H);
+    const bg = c.createLinearGradient(0, 0, 0, H); bg.addColorStop(0, '#fffdfc'); bg.addColorStop(1, '#fdeef0'); c.fillStyle = bg; c.fillRect(0, 0, W, H);
+    // 애니메이션 진행
+    let p = show.p;
+    if (show.anim){
+      const a = show.anim, k = Math.min(1, (now - a.t0) / a.dur);
+      p = a.from + (a.to - a.from) * (a.to > a.from ? ease.outBack(k) : ease.inOut(k)); show.p = p;
+      if (k >= 1){ show.p = a.to; p = a.to; show.anim = null; }
+    }
+    let rv = 1, drop = 0;
+    if (!forExport && show.reveal){
+      const k = Math.min(1, (now - show.tReveal) / 900); rv = ease.outBack(k); drop = (1 - ease.out(k)) * -60; if (k >= 1) show.reveal = 0;
+    }
+    ground(c, UN.ox[0], UN.oy, 1, (1 - p) * .9); ground(c, UN.ox[1], UN.oy, 1, (1 - p) * .9);
+    for (let i = 0; i < 2; i++){
+      drawLeg(c, i, null, Math.min(1, p * 2.2));
+      const L = layoutAt(i, Math.max(0, Math.min(1, p)));
+      const lift = (1 - Math.min(1, p)) * 0;
+      c.save(); if (rv !== 1 || drop){ c.translate(L.ox + 150 * L.s, L.oy + 356 * L.s); c.scale(.55 + .45 * rv, .55 + .45 * rv); c.translate(-(L.ox + 150 * L.s), -(L.oy + 356 * L.s)); c.translate(0, drop); c.globalAlpha = Math.min(1, rv * 1.4); }
+      drawRealSock(c, i, L, sqNow(i, now), (1 - Math.min(1, p)) * 0 + (p > 0 && p < 1 ? Math.sin(p * Math.PI) * .12 : 0));
+      c.restore();
+    }
+    // 반짝이
+    if (!forExport && show.sparks.length){
+      show.sparks = show.sparks.filter(s => now - s.t0 < s.life);
+      show.sparks.forEach(s => { const k = (now - s.t0) / s.life; c.save(); c.globalAlpha = 1 - k; c.fillStyle = s.col; c.font = (14 + s.sz * (1 - k)) + 'px sans-serif'; c.textAlign = 'center'; c.fillText('✦', s.x + s.vx * k * 40, s.y + s.vy * k * 40 - 20 * k); c.restore(); });
+    }
+  }
+  function burst(n){
+    const now = performance.now();
+    for (let k = 0; k < n; k++) show.sparks.push({t0: now + Math.random() * 120, life: 900 + Math.random() * 500, x: 120 + Math.random() * 460, y: 60 + Math.random() * 280, vx: (Math.random() - .5) * 2, vy: (Math.random() - .5) * 2, sz: 10 + Math.random() * 14, col: ['#ff6b8b', '#ffc46b', '#7bc6ff', '#b69cff'][k % 4] });
+    wake();
+  }
+
+  /* ---------------- 위치 잡기 화면 ---------------- */
+  const cv = $('c'), ctx = cv.getContext('2d'), dpr = Math.min(window.devicePixelRatio || 1, 2);
+  cv.width = W * dpr; cv.height = H * dpr; cv.style.aspectRatio = W + ' / ' + H;
+  const sv = $('s'), sctx = sv.getContext('2d'); sv.width = W * dpr; sv.height = H * dpr; sv.style.aspectRatio = W + ' / ' + H;
+  const wv = $('w'), wctx = wv.getContext('2d'); wv.width = W * dpr; wv.height = 340 * dpr; wv.style.aspectRatio = W + ' / 340';
+
+  function toL(e, el){ const r = el.getBoundingClientRect(); return {x: (e.clientX - r.left) * W / r.width, y: (e.clientY - r.top) * H / r.height}; }
+  function sockAt(p){ for (let i = 0; i < 2; i++){ const o = ORIG[i]; if (p.x >= o.x - 10 && p.x <= o.x + 296) return i; } return null; }
+  const ptrs = new Map(); let gest = null;
+  function sync(i){ if (S.link && S.imgs[0] && S.imgs[0] === S.imgs[1]){ S.t[1 - i] = Object.assign({}, S.t[i]); } }
+  function uiFromT(){
+    const t = S.t[S.sel]; $('size').value = Math.round(t.s * 100); $('sv').textContent = Math.round(t.s * 100) + '%';
+    let d = Math.round(t.r); while (d > 180) d -= 360; while (d < -180) d += 360; $('rot').value = d; $('rv').textContent = d + '°';
+  }
+  const hasImg = () => !!(S.imgs[0] || S.imgs[1]);
+  const clampT = t => { t.x = Math.max(PRINT.x - 30, Math.min(PRINT.x + PRINT.w + 30, t.x)); t.y = Math.max(PRINT.y - 30, Math.min(PRINT.y + PRINT.h + 30, t.y)); };
   cv.addEventListener('pointerdown', e => {
-    if (!hasImg()) return;
-    cv.setPointerCapture(e.pointerId);
-    ptrs.set(e.pointerId, toLogical(e));
-    const p = toLogical(e), hit = sockAt(p);
+    if (!hasImg()) return; cv.setPointerCapture(e.pointerId); const p = toL(e, cv); ptrs.set(e.pointerId, p); const hit = sockAt(p);
     if (ptrs.size === 1){
-      const wasSel = (hit === state.sel);
-      if (hit !== null && hit !== state.sel){ state.sel = hit; uiFromT(); redraw(); }
-      gest = {mode:'one', start:p, moved:false, wasSel, sock:state.sel, t0:{...state.t[state.sel]}};
+      const wasSel = hit === S.sel; if (hit !== null && hit !== S.sel){ S.sel = hit; uiFromT(); wake(); }
+      gest = {mode: 'one', start: p, moved: false, wasSel: wasSel, sock: S.sel, t0: Object.assign({}, S.t[S.sel])};
     } else if (ptrs.size === 2){
       const [a, b] = [...ptrs.values()];
-      gest = {mode:'two', sock:state.sel, t0:{...state.t[state.sel]},
-              d0:Math.hypot(b.x-a.x, b.y-a.y) || 1, a0:Math.atan2(b.y-a.y, b.x-a.x)};
+      gest = {mode: 'two', sock: S.sel, t0: Object.assign({}, S.t[S.sel]), d0: Math.hypot(b.x - a.x, b.y - a.y) || 1, a0: Math.atan2(b.y - a.y, b.x - a.x)};
     }
-    showHint(false);
+    hint(false);
   });
   cv.addEventListener('pointermove', e => {
-    if (!ptrs.has(e.pointerId) || !gest) return;
-    ptrs.set(e.pointerId, toLogical(e));
-    const t = state.t[gest.sock];
+    if (!ptrs.has(e.pointerId) || !gest) return; ptrs.set(e.pointerId, toL(e, cv)); const t = S.t[gest.sock];
     if (gest.mode === 'one'){
-      const p = ptrs.get(e.pointerId);
-      const dx = p.x - gest.start.x, dy = p.y - gest.start.y;
+      const p = ptrs.get(e.pointerId), dx = p.x - gest.start.x, dy = p.y - gest.start.y;
       if (!gest.moved && Math.hypot(dx, dy) > 5) gest.moved = true;
-      if (gest.moved){ t.x = gest.t0.x + dx; t.y = gest.t0.y + dy; clampT(t); sync(gest.sock); uiFromT(); redraw(); }
+      if (gest.moved){ t.x = gest.t0.x + dx; t.y = gest.t0.y + dy; clampT(t); sync(gest.sock); uiFromT(); wake(); }
     } else if (gest.mode === 'two' && ptrs.size >= 2){
-      const [a, b] = [...ptrs.values()];
-      const d = Math.hypot(b.x-a.x, b.y-a.y) || 1, an = Math.atan2(b.y-a.y, b.x-a.x);
-      t.s = Math.max(.2, Math.min(3, gest.t0.s * d / gest.d0));
-      t.r = gest.t0.r + (an - gest.a0) * 180 / Math.PI;
-      sync(gest.sock); uiFromT(); redraw();
+      const [a, b] = [...ptrs.values()], d = Math.hypot(b.x - a.x, b.y - a.y) || 1, an = Math.atan2(b.y - a.y, b.x - a.x);
+      t.s = Math.max(.2, Math.min(3, gest.t0.s * d / gest.d0)); t.r = gest.t0.r + (an - gest.a0) * 180 / Math.PI; sync(gest.sock); uiFromT(); wake();
     }
   });
   function endPtr(e){
-    if (!ptrs.has(e.pointerId)) return;
-    const g = gest;
-    ptrs.delete(e.pointerId);
-    if (g && g.mode === 'one' && !g.moved && g.wasSel && e.type === 'pointerup'){
-      // 톡! — 눌린 곳으로 그림이 통통 이동
-      const o = ORIGINS[g.sock], p = toLogical(e);
-      tweenTo(g.sock, p.x - o.x, p.y - o.y);
-    }
-    if (ptrs.size === 0) gest = null;
-    else if (ptrs.size === 1){ const only = [...ptrs.values()][0]; gest = {mode:'one', start:only, moved:true, wasSel:true, sock:state.sel, t0:{...state.t[state.sel]}}; }
+    if (!ptrs.has(e.pointerId)) return; const g = gest; ptrs.delete(e.pointerId);
+    if (g && g.mode === 'one' && !g.moved && g.wasSel && e.type === 'pointerup'){ const o = ORIG[g.sock], p = toL(e, cv); tweenTo(g.sock, p.x - o.x, p.y - o.y); }
+    if (ptrs.size === 0) gest = null; else if (ptrs.size === 1){ const only = [...ptrs.values()][0]; gest = {mode: 'one', start: only, moved: true, wasSel: true, sock: S.sel, t0: Object.assign({}, S.t[S.sel])}; }
   }
-  cv.addEventListener('pointerup', endPtr);
-  cv.addEventListener('pointercancel', endPtr);
-
-  function clampT(t){                               // 그림 중심이 인쇄 영역 밖으로 너무 멀리 못 가게
-    t.x = Math.max(PRINT.x - 30, Math.min(PRINT.x + PRINT.w + 30, t.x));
-    t.y = Math.max(PRINT.y - 30, Math.min(PRINT.y + PRINT.h + 30, t.y));
-  }
+  cv.addEventListener('pointerup', endPtr); cv.addEventListener('pointercancel', endPtr);
   function tweenTo(i, x, y){
-    const t = state.t[i], from = {x:t.x, y:t.y}, to = {x, y}; clampT(to);
-    const t0 = performance.now(), dur = 220;
-    (function step(now){
-      const k = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - k, 3);
-      const over = k < 1 ? 0 : 0;
-      t.x = from.x + (to.x - from.x) * e + over; t.y = from.y + (to.y - from.y) * e;
-      sync(i); redraw();
-      if (k < 1) requestAnimationFrame(step);
-    })(t0);
+    const t = S.t[i], from = {x: t.x, y: t.y}, to = {x: x, y: y}; clampT(to); const t0 = performance.now();
+    (function step(now){ const k = Math.min(1, (now - t0) / 220), e = 1 - Math.pow(1 - k, 3); t.x = from.x + (to.x - from.x) * e; t.y = from.y + (to.y - from.y) * e; sync(i); wake(); if (k < 1) requestAnimationFrame(step); })(t0);
   }
-
-  // ---- 그림 불러오기 ----
   function loadFile(file, cb){
-    if (!file) return;
-    const url = URL.createObjectURL(file), im = new Image();
-    im.onload = () => {
-      const max = 1600, k = Math.min(1, max / Math.max(im.width, im.height));
-      if (k < 1){                                   // 폰 메모리를 아끼려고 줄임
-        const c = document.createElement('canvas'); c.width = Math.round(im.width*k); c.height = Math.round(im.height*k);
-        c.getContext('2d').drawImage(im, 0, 0, c.width, c.height); cb(c);
-      } else cb(im);
-      URL.revokeObjectURL(url);
-    };
-    im.onerror = () => { alert('그림을 열 수 없어요. JPG나 PNG 파일을 골라 주세요.'); URL.revokeObjectURL(url); };
-    im.src = url;
+    if (!file) return; const url = URL.createObjectURL(file), im = new Image();
+    im.onload = () => { const max = 1600, k = Math.min(1, max / Math.max(im.width, im.height));
+      if (k < 1){ const c = document.createElement('canvas'); c.width = Math.round(im.width * k); c.height = Math.round(im.height * k); c.getContext('2d').drawImage(im, 0, 0, c.width, c.height); cb(c); } else cb(im); URL.revokeObjectURL(url); };
+    im.onerror = () => { alert('그림을 열 수 없어요. JPG나 PNG 파일을 골라 주세요.'); URL.revokeObjectURL(url); }; im.src = url;
   }
-  function setBoth(img){
-    state.imgs = [img, img]; state.t = [newT(), newT()]; state.link = true; $('link').checked = true;
-    afterLoad();
-  }
-  function afterLoad(){
-    $('tools').hidden = false; $('step1').querySelector('label').textContent = '📷 다른 그림 올리기';
-    showHint(true, '톡 눌러 보세요 · 끌어도 돼요');
-    uiFromT(); redraw(); setTimeout(() => showHint(false), 4200);
-  }
+  function setBoth(img){ S.imgs = [img, img]; S.t = [newT(), newT()]; S.link = true; $('link').checked = true; afterLoad(); }
+  function afterLoad(){ $('tools').hidden = false; $('up1').textContent = '📷 다른 그림 올리기'; hint(true, '톡 눌러 보세요 · 끌어도 돼요'); uiFromT(); wake(); setTimeout(() => hint(false), 4200); }
   $('file1').addEventListener('change', e => { loadFile(e.target.files[0], setBoth); e.target.value = ''; });
-  $('file2').addEventListener('change', e => {
-    loadFile(e.target.files[0], img => {
-      if (!state.imgs[0]) state.imgs[0] = img;
-      state.imgs[1] = img; state.t[1] = newT(); state.link = false; $('link').checked = false;
-      state.sel = 1; afterLoad();
-    });
-    e.target.value = '';
-  });
-
-  // 예시 그림(그림 없이 체험)
+  $('file2').addEventListener('change', e => { loadFile(e.target.files[0], img => { if (!S.imgs[0]) S.imgs[0] = img; S.imgs[1] = img; S.t[1] = newT(); S.link = false; $('link').checked = false; S.sel = 1; afterLoad(); }); e.target.value = ''; });
   function sampleImage(){
-    const c = document.createElement('canvas'); c.width = c.height = 800;
-    const q = c.getContext('2d');
-    q.fillStyle = '#fff'; q.fillRect(0, 0, 800, 800);
-    q.fillStyle = '#ff6b8b'; q.beginPath(); q.moveTo(400, 640);
-    q.bezierCurveTo(120, 430, 170, 190, 330, 220); q.bezierCurveTo(380, 230, 400, 270, 400, 290);
-    q.bezierCurveTo(400, 270, 420, 230, 470, 220); q.bezierCurveTo(630, 190, 680, 430, 400, 640); q.fill();
+    const c = document.createElement('canvas'); c.width = c.height = 800; const q = c.getContext('2d');
+    q.fillStyle = '#fff'; q.fillRect(0, 0, 800, 800); q.fillStyle = '#ff6b8b'; q.beginPath(); q.moveTo(400, 640);
+    q.bezierCurveTo(120, 430, 170, 190, 330, 220); q.bezierCurveTo(380, 230, 400, 270, 400, 290); q.bezierCurveTo(400, 270, 420, 230, 470, 220); q.bezierCurveTo(630, 190, 680, 430, 400, 640); q.fill();
     q.fillStyle = '#fff'; q.font = '700 78px sans-serif'; q.textAlign = 'center'; q.fillText('우리 100일', 400, 420);
-    q.fillStyle = '#7a6a6f'; q.font = '700 70px sans-serif'; q.fillText('2026.11.23', 400, 745);
-    return c;
+    q.fillStyle = '#7a6a6f'; q.font = '700 70px sans-serif'; q.fillText('2026.11.23', 400, 745); return c;
   }
   $('demoBtn').addEventListener('click', () => setBoth(sampleImage()));
-
-  // ---- 도구 ----
-  $('size').addEventListener('input', e => { const t = state.t[state.sel]; t.s = e.target.value / 100; sync(state.sel); uiFromT(); redraw(); });
-  $('rot').addEventListener('input', e => { const t = state.t[state.sel]; t.r = +e.target.value; sync(state.sel); uiFromT(); redraw(); });
-  $('center').addEventListener('click', () => tweenTo(state.sel, CENTER.x, CENTER.y));
-  $('reset').addEventListener('click', () => { state.t[state.sel] = newT(); sync(state.sel); uiFromT(); redraw(); });
-  $('link').addEventListener('change', e => { state.link = e.target.checked; if (state.link){ sync(state.sel); redraw(); } });
+  $('size').addEventListener('input', e => { S.t[S.sel].s = e.target.value / 100; sync(S.sel); uiFromT(); wake(); });
+  $('rot').addEventListener('input', e => { S.t[S.sel].r = +e.target.value; sync(S.sel); uiFromT(); wake(); });
+  $('center').addEventListener('click', () => tweenTo(S.sel, CENTER.x, CENTER.y));
+  $('reset').addEventListener('click', () => { S.t[S.sel] = newT(); sync(S.sel); uiFromT(); wake(); });
+  $('link').addEventListener('change', e => { S.link = e.target.checked; if (S.link){ sync(S.sel); wake(); } });
   const sw = $('sw');
-  COLORS.forEach((c, i) => {
-    const b = document.createElement('button'); b.type = 'button'; b.title = c.name; b.setAttribute('aria-label', c.name);
-    b.style.background = c.base; if (i === state.color) b.className = 'on';
-    b.addEventListener('click', () => { state.color = i; [...sw.children].forEach((x, j) => x.className = j === i ? 'on' : ''); redraw(); });
-    sw.appendChild(b);
-  });
+  COLORS.forEach((c, i) => { const b = document.createElement('button'); b.type = 'button'; b.title = c.name; b.setAttribute('aria-label', c.name); b.style.background = c.base; if (i === S.color) b.className = 'on';
+    b.addEventListener('click', () => { S.color = i; [...sw.children].forEach((x, j) => x.className = j === i ? 'on' : ''); wake(); }); sw.appendChild(b); });
+  const hintEl = $('hint'); function hint(on, text){ if (text) hintEl.textContent = text; hintEl.classList.toggle('off', !on); }
+  function initMake(){ S.sel = 0; wake(); }
 
-  // ---- 저장(안내선 없이 + 「시안 예시」 문구) ----
-  $('save').addEventListener('click', () => {
-    const out = document.createElement('canvas'); out.width = W * 2; out.height = (H + 36) * 2;
-    const c = out.getContext('2d'); c.scale(2, 2);
-    c.fillStyle = '#fffdfc'; c.fillRect(0, 0, W, H + 36);
-    render(c, true);
-    c.fillStyle = '#8d7b81'; c.font = '500 12px sans-serif'; c.textAlign = 'center';
-    c.fillText('짜임 · 시안 예시예요. 실제 인쇄는 색·크기·위치가 조금 다를 수 있어요.', W / 2, H + 22);
-    out.toBlob(async blob => {
-      const file = new File([blob], '짜임_양말시안.png', {type: 'image/png'});
-      try {
-        if (navigator.canShare && navigator.canShare({files: [file]})){ await navigator.share({files: [file], title: '짜임 양말 시안'}); return; }
-      } catch (_) { /* 공유 취소 */ return; }
-      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = '짜임_양말시안.png';
-      document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
-    }, 'image/png');
+  /* ---------------- 짜임 중 ---------------- */
+  const WAIT_MS = 6800, WAIT_STEPS = [[0, '실을 고르고 있어요'], [.22, '그림을 옮겨 담고 있어요'], [.5, '한 땀 한 땀 짜고 있어요'], [.8, '마무리하고 있어요']];
+  let waitT0 = 0;
+  $('make').addEventListener('click', () => {
+    if (!hasImg()) return; buildPrint(); post('make', {color: COLORS[S.color].name, scale: S.t[0].s, rot: Math.round(S.t[0].r), second: S.imgs[0] !== S.imgs[1]});
+    go('wait'); waitT0 = performance.now(); wake();
   });
-
-  // ---- 마지막 한 문항 ----
-  const ANSWERS = ['꼭 살 것 같다', '아마 살 것 같다', '모르겠다', '안 살 것 같다'];
-  $('done').addEventListener('click', () => {
-    $('ask').hidden = false; $('askQ').textContent = '이 시안이 실제 양말로 집에 온다면, 사시겠어요?' + (CONFIG.PRICE_TEXT ? ' (' + CONFIG.PRICE_TEXT + ')' : '');
-    const box = $('askBtns'); box.innerHTML = ''; $('thanks').hidden = true;
-    ANSWERS.forEach(a => {
-      const b = document.createElement('button'); b.type = 'button'; b.className = 'line'; b.textContent = a;
-      b.addEventListener('click', () => answer(a)); box.appendChild(b);
-    });
-    $('ask').scrollIntoView({behavior: 'smooth', block: 'center'});
-  });
-  function answer(a){
-    $('askBtns').innerHTML = ''; $('thanks').hidden = false;
-    $('thanks').textContent = '답해 주셔서 감사합니다! 🧦 (' + a + ')';
-    if (CONFIG.ANSWER_ENDPOINT && CONFIG.ANSWER_ENTRY){
-      const fd = new FormData(); fd.append(CONFIG.ANSWER_ENTRY, a);
-      fetch(CONFIG.ANSWER_ENDPOINT, {method: 'POST', mode: 'no-cors', body: fd}).catch(() => {});
-    }
+  function drawWait(now){
+    const p = Math.min(1, (now - waitT0) / WAIT_MS), c = wctx; c.setTransform(dpr, 0, 0, dpr, 0, 0);
+    c.clearRect(0, 0, W, 340); const bg = c.createLinearGradient(0, 0, 0, 340); bg.addColorStop(0, '#fffdfc'); bg.addColorStop(1, '#fdeef0'); c.fillStyle = bg; c.fillRect(0, 0, W, 340);
+    c.save(); c.translate(W / 2 - 150 * .86, -14); c.scale(.86, .86);
+    c.save(); c.setLineDash([6, 5]); c.strokeStyle = 'rgba(232,74,111,.5)'; c.lineWidth = 2; c.stroke(sockPath); c.restore();
+    c.save(); c.clip(sockPath); const col = COLORS[S.color], top = 356 - 356 * ease.inOut(p);
+    c.fillStyle = col.base; c.fillRect(0, top, 320, 380); c.fillStyle = chevPat; c.fillRect(0, top, 320, 380);
+    c.fillStyle = 'rgba(255,255,255,.55)'; c.fillRect(0, top - 2, 320, 4); c.restore();
+    const nx = 150 + Math.sin(now / 160) * 70; c.strokeStyle = '#7a6a6f'; c.lineWidth = 3; c.lineCap = 'round';
+    c.beginPath(); c.moveTo(nx - 40, top - 38); c.lineTo(nx + 6, top + 2); c.stroke(); c.beginPath(); c.moveTo(nx + 40, top - 38); c.lineTo(nx - 6, top + 2); c.stroke();
+    c.fillStyle = '#ff6b8b'; c.beginPath(); c.arc(nx - 40, top - 38, 6, 0, 7); c.fill(); c.beginPath(); c.arc(nx + 40, top - 38, 6, 0, 7); c.fill();
+    c.restore();
+    $('waitBar').style.width = Math.round(p * 100) + '%';
+    let s = WAIT_STEPS[0][1]; WAIT_STEPS.forEach(w => { if (p >= w[0]) s = w[1]; }); $('waitS').textContent = s + '.'.repeat(1 + Math.floor(now / 350) % 3);
+    if (p >= 1){ startShow(); }
   }
 
-  // ---- 안내 말풍선 ----
-  const hint = $('hint'); let hintTimer;
-  function showHint(on, text){ if (text) hint.textContent = text; hint.classList.toggle('off', !on); }
+  /* ---------------- 완성 ---------------- */
+  function startShow(){
+    show.worn = false; show.p = 0; show.anim = null; show.reveal = 1; show.tReveal = performance.now(); sqz[0] = sqz[1] = null; show.sparks = [];
+    $('wear').textContent = '👣 신어 볼래요'; $('skinBox').hidden = true; $('showT').textContent = '양말 완성했어요! 🎉'; $('showSub').textContent = '양말을 톡톡 눌러 보세요. 신어 볼 수도 있어요.';
+    go('show'); burst(14); hint2(true, '톡톡 눌러 보세요'); setTimeout(() => hint2(false), 4500);
+  }
+  const h2 = $('hint2'); function hint2(on, t){ if (t) h2.textContent = t; h2.classList.toggle('off', !on); }
+  function showLocal(i, p, pt){
+    const L = layoutAt(i, Math.max(0, Math.min(1, show.p)));
+    return {x: (pt.x - L.ox) / L.s, y: (pt.y - L.oy) / L.s};
+  }
+  sv.addEventListener('pointerdown', e => {
+    const pt = toL(e, sv); hint2(false);
+    let best = null, bd = 1e9;
+    for (let i = 0; i < 2; i++){ const l = showLocal(i, 0, pt); if (l.x > 20 && l.x < 316 && l.y > -10 && l.y < 372){ const d = Math.abs(l.x - 150); if (d < bd){ bd = d; best = {i: i, l: l}; } } }
+    if (best) poke(best.i, best.l.x, best.l.y);
+  });
+  $('wear').addEventListener('click', () => {
+    const to = show.worn ? 0 : 1; show.worn = !!to; show.anim = {t0: performance.now(), dur: to ? 950 : 600, from: show.p, to: to};
+    $('wear').textContent = to ? '🧦 벗을래요' : '👣 신어 볼래요'; $('skinBox').hidden = !to;
+    if (to){ hint2(true, '신은 양말도 톡톡 눌러 보세요'); setTimeout(() => hint2(false), 4000); burst(8); } wake();
+  });
+  const skinSw = $('skinSw'); SKINS.forEach((s, i) => { const b = document.createElement('button'); b.type = 'button'; b.setAttribute('aria-label', '피부색 ' + (i + 1)); b.style.background = s; if (i === S.skin) b.className = 'on';
+    b.addEventListener('click', () => { S.skin = i; [...skinSw.children].forEach((x, j) => x.className = j === i ? 'on' : ''); wake(); }); skinSw.appendChild(b); });
+  $('saveImg').addEventListener('click', () => {
+    const out = document.createElement('canvas'); out.width = W * 2; out.height = (H + 36) * 2; const c = out.getContext('2d'); c.scale(2, 2);
+    c.fillStyle = '#fffdfc'; c.fillRect(0, 0, W, H + 36); renderShow(c, performance.now(), true);
+    c.fillStyle = '#8d7b81'; c.font = '500 12px sans-serif'; c.textAlign = 'center'; c.fillText('짜임 · 시안 예시예요. 실제 인쇄는 색·크기·위치가 조금 다를 수 있어요.', W / 2, H + 22);
+    out.toBlob(async blob => { const file = new File([blob], '짜임_양말시안.png', {type: 'image/png'});
+      try { if (navigator.canShare && navigator.canShare({files: [file]})){ await navigator.share({files: [file], title: '짜임 양말 시안'}); return; } } catch (_) { return; }
+      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = '짜임_양말시안.png'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000); }, 'image/png');
+  });
+  $('seen').addEventListener('click', () => { post('studio', {worn: show.worn, pokes: pokeCount}); openLast(); });
+  let pokeCount = 0; const _poke = poke; poke = function (i, x, y){ pokeCount++; _poke(i, x, y); };
 
-  // 시험용: 주소 뒤에 #demo 를 붙이면 예시 그림이 바로 뜸
-  if (location.hash === '#demo'){ setBoth(sampleImage()); window.__state = state; }
-  requestAnimationFrame(paint);
+  /* ---------------- 마지막 한 문항 ---------------- */
+  const LAST = ['꼭 살 것 같다', '아마 살 것 같다', '모르겠다', '안 살 것 같다'];
+  function openLast(){
+    go('last'); $('thanks').hidden = true; $('lastCard').hidden = false;
+    $('lastQ').textContent = '이 양말이 실제로 집에 온다면, 사시겠어요?' + (CONFIG.PRICE_TEXT ? ' (커플 세트 ' + CONFIG.PRICE_TEXT + ')' : ' (커플 세트 ' + priceStr + ')');
+    const box = $('lastOpts'); box.innerHTML = '';
+    LAST.forEach(a => { const b = document.createElement('button'); b.type = 'button'; b.className = 'opt'; b.textContent = a;
+      b.addEventListener('click', () => { post('after', {buy_after: a, buy_before: A.buy || null}); $('lastCard').hidden = true; $('thanks').hidden = false;
+        $('thanksSub').textContent = '답해 주셔서 감사합니다! (' + a + ')'; window.scrollTo(0, 0); }); box.appendChild(b); });
+  }
+
+  /* ---------------- 그리기 루프(필요할 때만) ---------------- */
+  let dirty = true, running = false;
+  function wake(){ dirty = true; if (!running){ running = true; requestAnimationFrame(loop); } }
+  function loop(now){
+    let again = false;
+    if (cur === 'make'){ if (dirty){ ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, W, H); ctx.fillStyle = '#fffdfc'; ctx.fillRect(0, 0, W, H); drawFlatSock(ctx, 0, false); drawFlatSock(ctx, 1, false); } }
+    else if (cur === 'wait'){ drawWait(now); again = true; }
+    else if (cur === 'show'){ sctx.setTransform(dpr, 0, 0, dpr, 0, 0); renderShow(sctx, now, false); again = !!(show.anim || show.reveal || sqz[0] || sqz[1] || show.sparks.length); }
+    dirty = false; if (again || dirty){ requestAnimationFrame(loop); } else running = false;
+  }
+
+  /* ---------------- 시험용 바로가기(#d-...) ---------------- */
+  const hsh = location.hash;
+  if (hsh.indexOf('#d-') === 0){
+    const im = sampleImage(); S.imgs = [im, im]; S.t = [newT(), newT()];
+    if (hsh === '#d-survey'){ go('intro'); }
+    else if (hsh === '#d-svc'){ qi = QS.findIndex(q => q.id === '__svc'); renderQ(); }
+    else if (hsh === '#d-make'){ go('make'); $('tools').hidden = false; wake(); }
+    else if (hsh === '#d-wait'){ buildPrint(); go('wait'); waitT0 = performance.now() - 3200; wake(); }
+    else if (hsh === '#d-show' || hsh === '#d-wear'){ buildPrint(); startShow(); show.reveal = 0; if (hsh === '#d-wear'){ show.worn = true; show.p = 1; $('skinBox').hidden = false; } wake(); }
+    window.__dbg = {S: S, A: A, show: show, sent: sent, sqz: sqz, poke: () => pokeCount, go: go};
+  }
+  if (hsh.indexOf('#d-') !== 0) go('intro');
 })();
 </script>
 </body>
