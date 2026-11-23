@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#ffffff">
-<title>짜임 · 커플 설문과 양말 시안</title>
+<title>짜임 · 커플 데이트 설문조사</title>
 <style>
   :root{
     --ink:#191f28; --sub:#6b7684; --mute:#8b95a1; --line:#e5e8eb; --soft:#f2f4f6; --soft2:#f9fafb;
@@ -120,13 +120,13 @@
 
     <!-- 시작 -->
     <section class="page" id="s-intro">
-      <span class="eyebrow">커플 설문 · 1~2분</span>
-      <h1>데이트 이야기 들려주고<br><em>우리 양말</em> 시안<br>만들어 봐요</h1>
-      <p class="lead">솔직하게 답해 주시면 돼요. 정답은 없어요.</p>
-      <div class="stage flat"><canvas id="heroCv" width="700" height="300"></canvas></div>
+      <span class="eyebrow">커플 데이트 설문조사 · 1~2분</span>
+      <h1>연인과의 <em>데이트 이야기</em>,<br>들려 주세요</h1>
+      <p class="lead">정답은 없고, 솔직하게 답해 주시면 돼요.<br>여러분의 이야기가 서비스를 만드는 데 큰 도움이 돼요.</p>
+      <div class="stage flat"><div style="font-size:46px; text-align:center; padding:26px 0; letter-spacing:10px">☕ 🎡 📸 💌</div></div>
       <ul class="points">
         <li><span>📝</span>질문 11개, 1~2분이면 끝나요</li>
-        <li><span>🧦</span>끝나면 내 그림으로 양말 시안을 만들어 봐요</li>
+        <li><span>🎁</span>끝나면 선물처럼, 내 그림으로 양말 시안을 만들어 볼 수 있어요</li>
         <li><span>🔒</span>올린 그림은 이 폰 밖으로 나가지 않아요</li>
       </ul>
       <div class="bottom"><button class="cta" id="start" type="button">시작하기</button></div>
@@ -756,7 +756,6 @@ const CONFIG = {
     if (cur === 'make'){ if (dirty){ ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, W, H); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, W, H); drawFlatSock(ctx, 0, S); drawFlatSock(ctx, 1, S); } }
     else if (cur === 'wait'){ drawWait(now); again = true; }
     else if (cur === 'show'){ sctx.setTransform(dpr, 0, 0, dpr, 0, 0); renderShow(sctx, now, false); again = !!(show.anim || show.reveal || sqz[0] || sqz[1] || show.sparks.length); }
-    else if (cur === 'intro'){ if (dirty) drawPair($('heroCv')); }
     dirty = false; if (again || dirty){ requestAnimationFrame(loop); } else running = false;
   }
 
