@@ -114,7 +114,7 @@
     <section class="page" id="s-intro">
       <span class="eyebrow">커플 데이트 설문조사</span>
       <h1>연인과의 <em>데이트 이야기</em>,<br>들려 주세요</h1>
-      <p class="lead">1~2분이면 끝나요. 정답은 없고, 솔직하게 답해 주시면 돼요. 응답은 서비스를 준비하는 데에만 써요.</p>
+      <p class="lead">1~2분이면 끝나요. 정답은 없고, 솔직하게 답해 주시면 돼요. 응답은 서비스를 준비하는 데에만 쓰고, 운영자의 이메일로 전달돼요.</p>
       <ol class="points">
         <li><b>01</b><span>질문은 12개, 1~2분이면 끝나요</span></li>
         <li><b>02</b><span>끝나면 내 그림으로 양말 시안을 만들어 볼 수 있어요</span></li>
@@ -231,7 +231,8 @@
    SPECS         : 소개 아래에 보일 사양 3줄(완성 모습 · 만드는 시간 · 세탁 안내).
    PRICE_TEXT    : 제안가. 예) '29,000원'. 비워 두면 질문에 「[제안가]원」이라고 그대로 보여요(시험용 표시).
    RETENTION     : 연락처 보유 기간. 정확히 정해서 적으세요.
-   FORM_ACTION   : 답을 받을 구글폼의 「formResponse」 주소.
+   EMAIL         : 완료된 응답을 받을 이메일(FormSubmit 서비스로 전달). 처음 한 번 확인 메일의 버튼을 눌러야 켜져요.
+   FORM_ACTION   : (선택) 답을 모아 둘 구글폼의 「formResponse」 주소.
    ENTRY_JSON    : 그 구글폼 「장문형 질문 1개」의 입력칸 이름. 예) entry.1234567890
    ※ FORM_ACTION · ENTRY_JSON 이 비어 있으면 답은 어디에도 저장되지 않아요(시험 모드).
    ========================================================================== */
@@ -239,6 +240,7 @@ const CONFIG = {
   SERVICE_TEXT: '짜임은 둘이 고른 그림이나 사진을 양말에 바로 인쇄해서, 한 켤레부터 우리만의 양말로 만들어 주는 서비스예요.',
   SPECS: ['완성 모습: [사진·샘플로 보여 드릴 예정]', '만드는 데 걸리는 시간: [○○분]', '세탁: [세탁 안내]'],
   PRICE_TEXT: '',
+  EMAIL: 'dodud101283@gmail.com',
   RETENTION: '[보유 기간을 정해서 적기: 안내 후 즉시, 늦어도 ○개월 안]',
   FORM_ACTION: '',
   ENTRY_JSON: ''
@@ -259,16 +261,36 @@ const CONFIG = {
   const respId = Math.random().toString(36).slice(2, 10);
   const srcParam = new URLSearchParams(location.search).get('l') || '';
   const SRC = ({a: '현장', b: '지인', c: '온라인'})[srcParam] || '미지정';
-  const configured = !!(CONFIG.FORM_ACTION && CONFIG.ENTRY_JSON);
+  const googleOn = !!(CONFIG.FORM_ACTION && CONFIG.ENTRY_JSON);
+  const configured = !!(CONFIG.EMAIL || googleOn);
   if (!configured) $('testBanner').hidden = false;
-  const sent = [];
+  const sent = [], EXTRA = {};
+  const LABEL = {contact: '연락처', consent: '개인정보 동의', buy_price: '얼마라면 살 만한가(원)'};
+  function emailSend(kind, payload){
+    const fd = new FormData(), T = {}; QS.forEach(q => { if (q.text) T[q.id] = q.text; });
+    fd.append('_subject', '[짜임 설문] ' + (kind === 'survey' ? '설문 완료' : '시안 체험 후 답변') + ' · ' + respId);
+    fd.append('_template', 'table'); fd.append('_captcha', 'false');
+    fd.append('응답 번호', respId); fd.append('시각', new Date().toLocaleString('ko-KR'));
+    if (SRC !== '미지정') fd.append('받은 링크 구분', SRC);
+    if (kind === 'survey'){
+      const a = payload.a || {};
+      Object.keys(a).forEach(k => { let v = a[k]; if (Array.isArray(v)) v = v.join(' / '); if (typeof v === 'boolean') v = v ? '동의' : '미동의'; fd.append(T[k] || LABEL[k] || k, v); });
+    } else {
+      fd.append('시안을 본 뒤 구매 의향', payload.buy_after); fd.append('시안 보기 전 구매 의향', payload.buy_before || '(답 없음)');
+      const E = EXTRA; if (E.color) fd.append('고른 양말 색', E.color); if ('worn' in E) fd.append('신어 봤나', E.worn ? '예' : '아니오'); if ('pokes' in E) fd.append('톡톡 누른 횟수', String(E.pokes));
+      if ('second' in E) fd.append('둘째 양말은 다른 그림', E.second ? '예' : '아니오');
+    }
+    fetch('https://formsubmit.co/ajax/' + encodeURIComponent(CONFIG.EMAIL), {method: 'POST', headers: {'Accept': 'application/json'}, body: fd}).catch(() => {});
+  }
   function post(kind, payload){
     const body = JSON.stringify(Object.assign({id: respId, kind: kind, src: SRC, t: new Date().toISOString()}, payload));
     sent.push(body);
-    if (configured){
+    if (kind === 'make' || kind === 'studio') Object.assign(EXTRA, payload);
+    if (googleOn){
       const fd = new FormData(); fd.append(CONFIG.ENTRY_JSON, body);
       fetch(CONFIG.FORM_ACTION, {method: 'POST', mode: 'no-cors', body: fd}).catch(() => {});
     }
+    if (CONFIG.EMAIL && (kind === 'survey' || kind === 'after')) emailSend(kind, payload);
   }
 
   /* ---------------- 설문 ---------------- */
@@ -361,7 +383,7 @@ const CONFIG = {
         const i = document.createElement('input'); i.type = 'text'; i.placeholder = '휴대폰 번호 또는 카카오 ID'; i.value = A.contact || '';
         i.addEventListener('input', () => { A.contact = i.value; update(); });
         const c = document.createElement('label'); c.className = 'chk';
-        c.innerHTML = '<input type="checkbox" id="consent"><span><b>개인정보 수집·이용에 동의해요.</b><br>· 수집 항목: 연락처(휴대폰 번호 또는 카카오 ID)<br>· 이용 목적: 서비스 시작·체험 일정 안내<br>· 보유 기간: ' + CONFIG.RETENTION + '<br>· 동의하지 않아도 설문에는 참여할 수 있고, 불이익이 없어요.</span>';
+        c.innerHTML = '<input type="checkbox" id="consent"><span><b>개인정보 수집·이용에 동의해요.</b><br>· 수집 항목: 연락처(휴대폰 번호 또는 카카오 ID)<br>· 이용 목적: 서비스 시작·체험 일정 안내<br>· 보유 기간: ' + CONFIG.RETENTION + '<br>· 전달: 응답은 운영자의 이메일로 전달돼요<br>· 동의하지 않아도 설문에는 참여할 수 있고, 불이익이 없어요.</span>';
         ex.appendChild(i); ex.appendChild(c);
         c.querySelector('input').checked = !!A.consent;
         c.querySelector('input').addEventListener('change', e => { A.consent = e.target.checked; update(); });
