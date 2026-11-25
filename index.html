@@ -89,6 +89,8 @@
   .points b{font-family:"Gowun Batang",serif; color:var(--accent); font-weight:700; letter-spacing:.04em}
   input[type=file]{display:none}
   .mark{margin:30px 0 8px}
+  .brand{height:22px; width:auto; flex:none; display:block}
+  .bigmark{width:210px; max-width:70%; height:auto; display:block; margin:34px 0 14px}
 
   .waitfull{margin:0 -22px; padding:34px 22px 28px; min-height:100vh; min-height:100dvh; background:var(--ink); color:var(--paper); display:flex; flex-direction:column}
   .waitfull h2{color:var(--paper); font-size:28px; margin:8px 0 10px}
@@ -108,6 +110,7 @@
     <button class="iconbtn" id="hback" type="button" aria-label="이전"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
     <div class="prog"><i id="bar"></i></div>
     <span class="stepn" id="qstep"></span>
+    <img class="brand" src="assets/jjaim-logo.png" alt="짜임" width="66" height="22">
   </header>
   <div class="warn" id="testBanner" hidden>시험 모드예요. 답이 저장되지 않고 이 화면에서만 보여요.</div>
 
@@ -220,7 +223,7 @@
         <div id="lastOpts"></div>
       </div>
       <div id="thanks" hidden>
-        <svg class="mark" width="54" height="76" viewBox="40 -8 270 372" fill="#f4d4da" stroke="#211d1b" stroke-width="7" stroke-linejoin="round"><path d="M70,0 L190,0 L190,225 C190,245 205,252 225,256 C268,262 296,282 296,312 C296,342 272,356 240,356 L96,356 C70,356 54,340 54,314 C54,290 66,276 70,250 Z"/></svg>
+        <img class="bigmark" src="assets/jjaim-logo.png" alt="짜임">
         <h2>정말 고맙습니다.</h2>
         <p class="lead" id="thanksSub"></p>
       </div>
