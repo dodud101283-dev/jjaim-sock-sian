@@ -121,7 +121,7 @@
       <ol class="points">
         <li><b>01</b><span>질문은 십여 개, 2분 안팎이면 끝나요</span></li>
         <li><b>02</b><span>원하시면 내 그림으로 양말 시안도 만들어 볼 수 있어요 (무료)</span></li>
-        <li><b>03</b><span>올린 그림은 이 폰 밖으로 나가지 않아요</span></li>
+        <li><b>03</b><span>올린 그림은 이 폰 안에서만 써요. 마지막에 원할 때만 시안 이미지를 보내요</span></li>
       </ol>
       <div class="bottom"><button class="cta" id="start" type="button">시작하기</button></div>
     </section>
@@ -180,7 +180,7 @@
           <label class="chip" for="file2">둘째는 다른 그림</label>
         </div>
       </div>
-      <p class="tiny"><b>올린 그림은 이 폰 밖으로 나가지 않아요.</b> 저장도, 전송도 하지 않고 이 화면에서만 써요.</p>
+      <p class="tiny"><b>올린 그림은 이 폰 안에서만 써요.</b> 마지막에 원하시면 완성한 시안 이미지를 운영자에게 보낼 수 있어요(선택).</p>
       <div class="bottom"><button class="cta" id="make" type="button" disabled>이대로 만들어 주세요</button></div>
     </section>
 
@@ -216,6 +216,7 @@
         <span class="eyebrow">마지막 한 문항이에요</span>
         <h2 id="lastQ"></h2>
         <p class="qhelp">시안을 보고 난 지금 마음을 골라 주세요.</p>
+        <label class="chk" id="sendWrap" hidden><input type="checkbox" id="sendImg"><span><b>내가 만든 시안 이미지를 운영자에게도 보내요 (선택)</b><br>· 완성한 양말 시안 사진 한 장이 메일로 전달돼요.<br>· 내가 올린 그림이 그 사진 안에 들어 있어요.<br>· 체크하지 않으면 사진은 보내지 않아요.</span></label>
         <div id="lastOpts"></div>
       </div>
       <div id="thanks" hidden>
@@ -267,7 +268,7 @@ const CONFIG = {
   const googleOn = !!(CONFIG.FORM_ACTION && CONFIG.ENTRY_JSON);
   const configured = !!(CONFIG.EMAIL || googleOn);
   if (!configured) $('testBanner').hidden = false;
-  const sent = [], EXTRA = {};
+  const sent = [], EXTRA = {}; let lastImageBlob = null, sendBlob = null;
   const LABEL = {name: '이름', email: '이메일(선택)', consent_who: '개인정보 동의(이름·이메일)', contact: '연락처', consent: '개인정보 동의(연락처)', price_one_other: '개인 양말 · 원하는 금액(원)', price_pair_other: '커플 세트 · 원하는 금액(원)'};
   function emailSend(kind, payload){
     const fd = new FormData(), T = {}; QS.forEach(q => { const t = qText(q); if (t) T[q.id] = t; });
@@ -279,7 +280,9 @@ const CONFIG = {
       const a = payload.a || {};
       Object.keys(a).forEach(k => { let v = a[k]; if (Array.isArray(v)) v = v.join(' / '); if (typeof v === 'boolean') v = v ? '동의' : '미동의'; fd.append(T[k] || LABEL[k] || k, v); });
     } else {
-      fd.append('시안을 본 뒤 구매 의향', payload.buy_after); fd.append('시안 보기 전에 고른 커플 세트 금액', payload.buy_before || '(답 없음)');
+      fd.append('시안을 본 뒤 구매 의향', payload.buy_after);
+      fd.append('시안 이미지', sendBlob ? '첨부함 (보내는 데 동의)' : '보내지 않음');
+      if (sendBlob) fd.append('attachment', sendBlob, 'sian_' + respId + '.jpg'); fd.append('시안 보기 전에 고른 커플 세트 금액', payload.buy_before || '(답 없음)');
       const E = EXTRA; if (E.color) fd.append('고른 양말 색', E.color); if ('worn' in E) fd.append('신어 봤나', E.worn ? '예' : '아니오'); if ('pokes' in E) fd.append('톡톡 누른 횟수', String(E.pokes));
       if ('second' in E) fd.append('둘째 양말은 다른 그림', E.second ? '예' : '아니오');
     }
@@ -808,6 +811,12 @@ const CONFIG = {
   });
   const skinSw = $('skinSw'); SKINS.forEach((s, i) => { const b = document.createElement('button'); b.type = 'button'; b.setAttribute('aria-label', '피부색 ' + (i + 1)); b.style.background = s; if (i === S.skin) b.className = 'on';
     b.addEventListener('click', () => { S.skin = i; [...skinSw.children].forEach((x, j) => x.className = j === i ? 'on' : ''); wake(); }); skinSw.appendChild(b); });
+  function buildExport(){
+    const out = document.createElement('canvas'); out.width = W * 2; out.height = (H + 36) * 2; const c = out.getContext('2d'); c.scale(2, 2);
+    c.fillStyle = '#fbf8f3'; c.fillRect(0, 0, W, H + 36); renderShow(c, performance.now(), true);
+    c.fillStyle = '#8d7b81'; c.font = '500 12px sans-serif'; c.textAlign = 'center'; c.fillText('짜임 · 시안 예시예요. 실제 인쇄는 색·크기·위치가 조금 다를 수 있어요.', W / 2, H + 22);
+    return out;
+  }
   $('saveImg').addEventListener('click', () => {
     const out = document.createElement('canvas'); out.width = W * 2; out.height = (H + 36) * 2; const c = out.getContext('2d'); c.scale(2, 2);
     c.fillStyle = '#fffdfc'; c.fillRect(0, 0, W, H + 36); renderShow(c, performance.now(), true);
@@ -816,16 +825,17 @@ const CONFIG = {
       try { if (navigator.canShare && navigator.canShare({files: [file]})){ await navigator.share({files: [file], title: '짜임 양말 시안'}); return; } } catch (_) { return; }
       const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = '짜임_양말시안.png'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000); }, 'image/png');
   });
-  $('seen').addEventListener('click', () => { post('studio', {worn: show.worn, pokes: pokeCount}); openLast(); });
+  $('seen').addEventListener('click', () => { post('studio', {worn: show.worn, pokes: pokeCount});
+    try { buildExport().toBlob(b => { lastImageBlob = b; openLast(); }, 'image/jpeg', .86); } catch (_) { lastImageBlob = null; openLast(); } });
 
   /* ---------------- 마지막 한 문항 ---------------- */
   const LAST = ['꼭 살 것 같다', '아마 살 것 같다', '모르겠다', '안 살 것 같다'];
   function openLast(){
-    go('last'); $('thanks').hidden = true; $('lastCard').hidden = false;
+    go('last'); $('thanks').hidden = true; $('lastCard').hidden = false; $('sendImg').checked = false; $('sendWrap').hidden = !lastImageBlob;
     $('lastQ').textContent = '이 시안과 같은 양말이 실제로 집에 온다면, 앞에서 고르신 금액에 사시겠어요?';
     const box = $('lastOpts'); box.innerHTML = '';
     LAST.forEach(a => { const b = document.createElement('button'); b.type = 'button'; b.className = 'opt'; b.innerHTML = '<span class="t"></span><span class="ck"></span>'; b.querySelector('.t').textContent = a;
-      b.addEventListener('click', () => { buzz(8); b.classList.add('on');
+      b.addEventListener('click', () => { buzz(8); b.classList.add('on'); sendBlob = ($('sendImg').checked && lastImageBlob) ? lastImageBlob : null;
         post('after', {buy_after: a, buy_before: (A.price_pair === '기타 (직접 입력)' ? (A.price_pair_other + '원') : A.price_pair) || null});
         setTimeout(() => { $('lastCard').hidden = true; $('thanks').hidden = false; $('thanksSub').textContent = '답해 주셔서 고맙습니다. (' + a + ')'; window.scrollTo(0, 0); }, 260); });
       box.appendChild(b); });
