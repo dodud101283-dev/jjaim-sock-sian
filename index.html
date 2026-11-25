@@ -291,7 +291,7 @@ const CONFIG = {W3F_KEY:'e708c887-8853-429d-beb4-c6a06a041966',
     const tryN = n => fetch('https://api.web3forms.com/submit', {method: 'POST', headers: {'Accept': 'application/json'}, body: fd})
       .then(r => { if (!r.ok) throw new Error(r.status); return r.json().catch(() => ({})); })
       .then(j => { if (j && (j.success === 'false' || j.success === false)) throw new Error('fail'); })
-      .catch(() => { if (n < 4) setTimeout(() => tryN(n + 1), 2500 * n); else { try { const q = JSON.parse(localStorage.getItem('jjaimQ') || '[]'); q.push({kind: kind, id: respId, payload: payload, a: A, t: Date.now()}); localStorage.setItem('jjaimQ', JSON.stringify(q.slice(-20))); } catch (_) {} } });
+      .catch(() => { if (n < 4) setTimeout(() => tryN(n + 1), 2500 * n); else { try { const f2 = new FormData(); fd.forEach((v, k) => { if (k !== 'access_key' && k !== 'botcheck' && k !== 'from_name') f2.append(k === 'subject' ? '_subject' : k, v); }); f2.append('_captcha', 'false'); fetch('https://formsubmit.co/ajax/' + encodeURIComponent(CONFIG.EMAIL), {method: 'POST', headers: {'Accept': 'application/json'}, body: f2}).catch(() => {}); } catch (_) {} try { const q = JSON.parse(localStorage.getItem('jjaimQ') || '[]'); q.push({kind: kind, id: respId, payload: payload, a: A, t: Date.now()}); localStorage.setItem('jjaimQ', JSON.stringify(q.slice(-20))); } catch (_) {} } });
     tryN(1);
   }
   function post(kind, payload){
