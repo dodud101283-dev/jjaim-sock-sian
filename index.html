@@ -183,7 +183,7 @@
           <label class="chip" for="file2">둘째는 다른 그림</label>
         </div>
       </div>
-      <p class="tiny"><b>올린 그림은 이 폰 안에서만 써요.</b> 마지막에 원하시면 완성한 시안 이미지를 운영자에게 보낼 수 있어요(선택).</p>
+      <p class="tiny"><b>올린 그림은 이 폰 안에서만 써요.</b></p>
       <div class="bottom"><button class="cta" id="make" type="button" disabled>이대로 만들어 주세요</button></div>
     </section>
 
@@ -243,7 +243,7 @@
    ENTRY_JSON    : 그 구글폼 「장문형 질문 1개」의 입력칸 이름. 예) entry.1234567890
    ※ FORM_ACTION · ENTRY_JSON 이 비어 있으면 답은 어디에도 저장되지 않아요(시험 모드).
    ========================================================================== */
-const CONFIG = {
+const CONFIG = {W3F_KEY:'e708c887-8853-429d-beb4-c6a06a041966', 
   SERVICE_TEXT: '짜임은 둘이 고른 그림이나 사진을 양말에 바로 인쇄해서, 한 켤레부터 우리만의 양말로 만들어 주는 서비스예요.',
   SPECS: ['완성 모습: [사진·샘플로 보여 드릴 예정]', '만드는 데 걸리는 시간: [○○분]', '세탁: [세탁 안내]'],
   PRICE_TEXT: '',
@@ -275,8 +275,8 @@ const CONFIG = {
   const LABEL = {name: '이름', email: '이메일(선택)', consent_who: '개인정보 동의(이름·이메일)', contact: '연락처', consent: '개인정보 동의(연락처)', price_one_other: '개인 양말 · 원하는 금액(원)', price_pair_other: '커플 세트 · 원하는 금액(원)'};
   function emailSend(kind, payload){
     const fd = new FormData(), T = {}; QS.forEach(q => { const t = qText(q); if (t) T[q.id] = t; });
-    fd.append('_subject', '[짜임 설문] ' + (kind === 'survey' ? '설문 완료' : '시안 체험 후 답변') + ' · ' + (A.name ? A.name + ' · ' : '') + respId);
-    fd.append('_template', 'table'); fd.append('_captcha', 'false');
+    fd.append('subject', '[짜임 설문] ' + (kind === 'survey' ? '설문 완료' : '시안 체험 후 답변') + ' · ' + (A.name ? A.name + ' · ' : '') + respId);
+    fd.append('access_key', CONFIG.W3F_KEY); fd.append('from_name', '짜임 설문'); fd.append('botcheck', '');
     fd.append('응답 번호', respId); if (A.name && kind !== 'survey') fd.append('이름', A.name); fd.append('시각', new Date().toLocaleString('ko-KR'));
     if (SRC !== '미지정') fd.append('받은 링크 구분', SRC);
     if (kind === 'survey'){
@@ -284,12 +284,11 @@ const CONFIG = {
       Object.keys(a).forEach(k => { let v = a[k]; if (Array.isArray(v)) v = v.join(' / '); if (typeof v === 'boolean') v = v ? '동의' : '미동의'; fd.append(T[k] || LABEL[k] || k, v); });
     } else {
       fd.append('시안을 본 뒤 구매 의향', payload.buy_after);
-      fd.append('시안 이미지', sendBlob ? '첨부함 (보내는 데 동의)' : '보내지 않음');
-      if (sendBlob) fd.append('attachment', sendBlob, 'sian_' + respId + '.jpg'); fd.append('시안 보기 전에 고른 커플 세트 금액', payload.buy_before || '(답 없음)');
+      fd.append('시안 보기 전에 고른 커플 세트 금액', payload.buy_before || '(답 없음)');
       const E = EXTRA; if (E.color) fd.append('고른 양말 색', E.color); if ('worn' in E) fd.append('신어 봤나', E.worn ? '예' : '아니오'); if ('pokes' in E) fd.append('톡톡 누른 횟수', String(E.pokes));
       if ('second' in E) fd.append('둘째 양말은 다른 그림', E.second ? '예' : '아니오');
     }
-    const tryN = n => fetch('https://formsubmit.co/ajax/' + encodeURIComponent(CONFIG.EMAIL), {method: 'POST', headers: {'Accept': 'application/json'}, body: fd, keepalive: !sendBlob})
+    const tryN = n => fetch('https://api.web3forms.com/submit', {method: 'POST', headers: {'Accept': 'application/json'}, body: fd})
       .then(r => { if (!r.ok) throw new Error(r.status); return r.json().catch(() => ({})); })
       .then(j => { if (j && (j.success === 'false' || j.success === false)) throw new Error('fail'); })
       .catch(() => { if (n < 4) setTimeout(() => tryN(n + 1), 2500 * n); else { try { const q = JSON.parse(localStorage.getItem('jjaimQ') || '[]'); q.push({kind: kind, id: respId, payload: payload, a: A, t: Date.now()}); localStorage.setItem('jjaimQ', JSON.stringify(q.slice(-20))); } catch (_) {} } });
@@ -838,7 +837,7 @@ const CONFIG = {
   /* ---------------- 마지막 한 문항 ---------------- */
   const LAST = ['꼭 살 것 같다', '아마 살 것 같다', '모르겠다', '안 살 것 같다'];
   function openLast(){
-    go('last'); $('thanks').hidden = true; $('lastCard').hidden = false; $('sendImg').checked = false; $('sendWrap').hidden = !lastImageBlob;
+    go('last'); $('thanks').hidden = true; $('lastCard').hidden = false; $('sendImg').checked = false; $('sendWrap').hidden = true;
     $('lastQ').textContent = '이 시안과 같은 양말이 실제로 집에 온다면, 앞에서 고르신 금액에 사시겠어요?';
     const box = $('lastOpts'); box.innerHTML = '';
     LAST.forEach(a => { const b = document.createElement('button'); b.type = 'button'; b.className = 'opt'; b.innerHTML = '<span class="t"></span><span class="ck"></span>'; b.querySelector('.t').textContent = a;
