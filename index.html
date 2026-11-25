@@ -116,7 +116,7 @@
       <h1>연인과의 <em>데이트 이야기</em>,<br>들려 주세요</h1>
       <p class="lead">1~2분이면 끝나요. 정답은 없고, 솔직하게 답해 주시면 돼요. 응답은 서비스를 준비하는 데에만 쓰고, 운영자의 이메일로 전달돼요.</p>
       <ol class="points">
-        <li><b>01</b><span>질문은 12개, 1~2분이면 끝나요</span></li>
+        <li><b>01</b><span>질문은 십여 개, 2분 안팎이면 끝나요</span></li>
         <li><b>02</b><span>끝나면 내 그림으로 양말 시안을 만들어 볼 수 있어요</span></li>
         <li><b>03</b><span>올린 그림은 이 폰 밖으로 나가지 않아요</span></li>
       </ol>
@@ -265,18 +265,18 @@ const CONFIG = {
   const configured = !!(CONFIG.EMAIL || googleOn);
   if (!configured) $('testBanner').hidden = false;
   const sent = [], EXTRA = {};
-  const LABEL = {contact: '연락처', consent: '개인정보 동의', buy_price: '얼마라면 살 만한가(원)'};
+  const LABEL = {name: '이름', email: '이메일(선택)', consent_who: '개인정보 동의(이름·이메일)', contact: '연락처', consent: '개인정보 동의(연락처)', price_one_other: '개인 양말 · 원하는 금액(원)', price_pair_other: '커플 세트 · 원하는 금액(원)'};
   function emailSend(kind, payload){
     const fd = new FormData(), T = {}; QS.forEach(q => { if (q.text) T[q.id] = q.text; });
-    fd.append('_subject', '[짜임 설문] ' + (kind === 'survey' ? '설문 완료' : '시안 체험 후 답변') + ' · ' + respId);
+    fd.append('_subject', '[짜임 설문] ' + (kind === 'survey' ? '설문 완료' : '시안 체험 후 답변') + ' · ' + (A.name ? A.name + ' · ' : '') + respId);
     fd.append('_template', 'table'); fd.append('_captcha', 'false');
-    fd.append('응답 번호', respId); fd.append('시각', new Date().toLocaleString('ko-KR'));
+    fd.append('응답 번호', respId); if (A.name && kind !== 'survey') fd.append('이름', A.name); fd.append('시각', new Date().toLocaleString('ko-KR'));
     if (SRC !== '미지정') fd.append('받은 링크 구분', SRC);
     if (kind === 'survey'){
       const a = payload.a || {};
       Object.keys(a).forEach(k => { let v = a[k]; if (Array.isArray(v)) v = v.join(' / '); if (typeof v === 'boolean') v = v ? '동의' : '미동의'; fd.append(T[k] || LABEL[k] || k, v); });
     } else {
-      fd.append('시안을 본 뒤 구매 의향', payload.buy_after); fd.append('시안 보기 전 구매 의향', payload.buy_before || '(답 없음)');
+      fd.append('시안을 본 뒤 구매 의향', payload.buy_after); fd.append('시안 보기 전에 고른 커플 세트 금액', payload.buy_before || '(답 없음)');
       const E = EXTRA; if (E.color) fd.append('고른 양말 색', E.color); if ('worn' in E) fd.append('신어 봤나', E.worn ? '예' : '아니오'); if ('pokes' in E) fd.append('톡톡 누른 횟수', String(E.pokes));
       if ('second' in E) fd.append('둘째 양말은 다른 그림', E.second ? '예' : '아니오');
     }
@@ -297,14 +297,16 @@ const CONFIG = {
   const A = {};
   const priceStr = CONFIG.PRICE_TEXT || '[제안가]원';
   const has = (k, v) => Array.isArray(A[k]) && A[k].includes(v);
-  const PART = {channel:'시작하기 전에', status:'데이트 이야기', age:'데이트 이야기', dates:'데이트 이야기', custom:'기념과 선물', regret:'기념과 선물', why_not:'기념과 선물',
+  const PART = {channel:'시작하기 전에', who:'시작하기 전에', couple_items:'데이트 이야기', price_one:'서비스에 대해', price_pair:'서비스에 대해', status:'데이트 이야기', age:'데이트 이야기', dates:'데이트 이야기', custom:'기념과 선물', regret:'기념과 선물', why_not:'기념과 선물',
     use:'서비스에 대해', way:'서비스에 대해', buy:'서비스에 대해', hesitate:'서비스에 대해', notify:'마무리', free:'마무리'};
   const QS = [
     {id:'channel', type:'single', text:'이 설문을 어디서 받으셨나요?', opts:['오프라인 (길이나 가게에서 직접 받았어요)', '온라인 (링크나 메시지로 들어왔어요)']},
+    {id:'who', type:'who', text:'이름과 이메일을 알려 주세요', help:'이메일은 안 적으셔도 괜찮아요. 이름 대신 닉네임도 돼요.'},
     {id:'status', type:'single', text:'지금 연애 상태는?', opts:['연애 중','최근 1년 안에 연애했다','썸·소개팅 중','해당 없음']},
     {id:'age', type:'single', text:'연령대는?', opts:['만 19세 미만','20대 초반','20대 후반','30대 초반','30대 후반 이상']},
     {id:'dates', type:'multi', text:'최근 1년 안에 해 본 「색다른 데이트」를 모두 골라 주세요.',
       opts:['팝업스토어','원데이클래스·공방 체험','전시·체험관','인생네컷·스티커사진','방탈출·보드게임·VR','커플 스냅 촬영','여행·캠핑','기타','해 본 적 없음'], excl:['해 본 적 없음']},
+    {id:'couple_items', type:'single', text:'평소 커플템을 많이 사용하시나요?', show: () => A.status === '연애 중', opts:['예', '아니요']},
     {id:'custom', type:'multi', text:'최근 1년 안에 연인과 함께하거나 연인에게 주려고 「맞춤으로 만든」 물건이 있나요?',
       opts:['커플 의류(티셔츠·커플룩)','이름·사진·문구를 새긴 물건(머그·폰케이스·키링 등)','직접 손으로 만든 선물','맞춤 양말','기타','없다'], excl:['없다']},
     {id:'regret', type:'multi', max:2, text:'만들면서 가장 아쉬웠던 점은?', show: () => !has('custom','없다'),
@@ -314,11 +316,12 @@ const CONFIG = {
     {id:'__svc', type:'info'},
     {id:'use', type:'multi', text:'쓴다면 어떤 때일 것 같나요?',
       opts:['기념일(100일·1주년 등) 선물','데이트 중에 같이 만드는 체험','커플룩·커플템','친구·가족 선물','쓸 일 없다'], excl:['쓸 일 없다']},
-    {id:'way', type:'single', text:'어떤 방식이 가장 좋나요?',
-      opts:['데이트 중에 현장에서 같이 만들고 바로 받기','날짜를 예약하고 가서 받기','인터넷 주문 후 택배','잘 모르겠다']},
-    {id:'buy', type:'single', text:'커플 세트(2켤레)가 ' + priceStr + '이라면 사실 건가요?',
-      opts:['꼭 살 것 같다','아마 살 것 같다','모르겠다','안 살 것 같다'],
-      extra:{when:['모르겠다','안 살 것 같다'], id:'buy_price', label:'얼마라면 살 만할까요? (원 · 선택)', input:'number'}},
+    {id:'price_one', type:'single', text:'개인 양말 한 켤레가 얼마라면 사실 것 같나요?', help:'사실 수 있는 가장 높은 금액을 골라 주세요.',
+      opts:['5,000원','10,000원','20,000원','30,000원','기타 (직접 입력)','사지 않을 것 같아요'],
+      extra:{when:['기타 (직접 입력)'], id:'price_one_other', label:'원하는 금액을 적어 주세요 (원)', input:'number', required:true}},
+    {id:'price_pair', type:'single', text:'커플 세트(2켤레)가 얼마라면 사실 것 같나요?', help:'사실 수 있는 가장 높은 금액을 골라 주세요.',
+      opts:['5,000원','10,000원','20,000원','30,000원','기타 (직접 입력)','사지 않을 것 같아요'],
+      extra:{when:['기타 (직접 입력)'], id:'price_pair_other', label:'원하는 금액을 적어 주세요 (원)', input:'number', required:true}},
     {id:'hesitate', type:'multi', text:'망설이게 하는 것이 있다면?',
       opts:['가격','세탁하면 번지거나 벗겨질까 걱정','걸리는 시간','그림 고르기·만들기가 귀찮음','배송','필요 없음','기타','없다'], excl:['없다']},
     {id:'notify', type:'contact', text:'서비스가 시작되거나 체험 자리가 생기면 알려 드릴까요?',
@@ -343,6 +346,7 @@ const CONFIG = {
     $('qeyebrow').textContent = PART[q.id] || '';
     $('qtext').textContent = q.text;
     $('qhelp').textContent = q.type === 'multi' ? (q.max ? '최대 ' + q.max + '개까지 골라요' : '해당하는 걸 모두 골라 주세요') : (q.type === 'text' ? '안 적으셔도 괜찮아요' : '');
+    if (q.help) $('qhelp').textContent = q.help;
     $('qhelp').hidden = !$('qhelp').textContent;
     const box = $('qopts'); box.innerHTML = ''; const ex = $('qextra'); ex.innerHTML = ''; ex.hidden = true;
     const sel = () => A[q.id];
@@ -367,6 +371,15 @@ const CONFIG = {
         });
         b._paint(); box.appendChild(b);
       });
+    } else if (q.type === 'who'){
+      const mkf = (ph, key, type, label) => { const l = document.createElement('div'); l.className = 'lab'; l.textContent = label;
+        const i = document.createElement('input'); i.type = type; i.placeholder = ph; i.value = A[key] || ''; i.autocomplete = key === 'email' ? 'email' : 'name';
+        i.addEventListener('input', () => { A[key] = i.value; update(); }); box.appendChild(l); box.appendChild(i); };
+      mkf('예) 김애영', 'name', 'text', '이름 (닉네임도 괜찮아요)');
+      mkf('예) name@example.com', 'email', 'email', '이메일 (선택)');
+      const c = document.createElement('label'); c.className = 'chk';
+      c.innerHTML = '<input type="checkbox"><span><b>개인정보 수집·이용에 동의해요.</b><br>· 수집 항목: 이름(필수), 이메일(선택)<br>· 이용 목적: 응답 확인, 결과·서비스 안내<br>· 보유 기간: ' + CONFIG.RETENTION + '<br>· 전달: 응답은 운영자의 이메일로 전달돼요<br>· 동의하지 않으면 설문에 참여하기 어려워요.</span>';
+      c.querySelector('input').checked = !!A.consent_who; c.querySelector('input').addEventListener('change', e => { A.consent_who = e.target.checked; update(); }); box.appendChild(c);
     } else if (q.type === 'text'){
       const t = document.createElement('textarea'); t.placeholder = '자유롭게 적어 주세요'; t.value = A[q.id] || '';
       t.addEventListener('input', () => { A[q.id] = t.value; }); box.appendChild(t);
@@ -377,7 +390,7 @@ const CONFIG = {
         ex.hidden = false;
         const l = document.createElement('div'); l.className = 'lab'; l.textContent = q.extra.label;
         const i = document.createElement('input'); i.type = 'number'; i.inputMode = 'numeric'; i.placeholder = '예) 20000'; i.value = A[q.extra.id] || '';
-        i.addEventListener('input', () => { A[q.extra.id] = i.value; }); ex.appendChild(l); ex.appendChild(i);
+        i.addEventListener('input', () => { A[q.extra.id] = i.value; update(); }); ex.appendChild(l); ex.appendChild(i);
       } else if (q.type === 'contact' && sel() === q.opts[0]){
         ex.hidden = false;
         const i = document.createElement('input'); i.type = 'text'; i.placeholder = '휴대폰 번호 또는 카카오 ID'; i.value = A.contact || '';
@@ -394,9 +407,11 @@ const CONFIG = {
   }
   function valid(q){
     if (q.type === 'text') return true;
+    if (q.type === 'who') return !!(A.name && A.name.trim()) && !!A.consent_who && (!A.email || !A.email.trim() || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(A.email.trim()));
     const v = A[q.id];
     if (q.type === 'multi') return Array.isArray(v) && v.length > 0;
     if (!v) return false;
+    if (q.extra && q.extra.required && q.extra.when.includes(v)) return !!(A[q.extra.id] && Number(A[q.extra.id]) > 0);
     if (q.type === 'contact' && v === q.opts[0]) return !!(A.contact && A.contact.trim()) && !!A.consent;
     return true;
   }
@@ -776,11 +791,11 @@ const CONFIG = {
   const LAST = ['꼭 살 것 같다', '아마 살 것 같다', '모르겠다', '안 살 것 같다'];
   function openLast(){
     go('last'); $('thanks').hidden = true; $('lastCard').hidden = false;
-    $('lastQ').textContent = '이 양말이 실제로 집에 온다면, 사시겠어요? (커플 세트 ' + priceStr + ')';
+    $('lastQ').textContent = '이 시안과 같은 양말이 실제로 집에 온다면, 앞에서 고르신 금액에 사시겠어요?';
     const box = $('lastOpts'); box.innerHTML = '';
     LAST.forEach(a => { const b = document.createElement('button'); b.type = 'button'; b.className = 'opt'; b.innerHTML = '<span class="t"></span><span class="ck"></span>'; b.querySelector('.t').textContent = a;
       b.addEventListener('click', () => { buzz(8); b.classList.add('on');
-        post('after', {buy_after: a, buy_before: A.buy || null});
+        post('after', {buy_after: a, buy_before: (A.price_pair === '기타 (직접 입력)' ? (A.price_pair_other + '원') : A.price_pair) || null});
         setTimeout(() => { $('lastCard').hidden = true; $('thanks').hidden = false; $('thanksSub').textContent = '답해 주셔서 고맙습니다. (' + a + ')'; window.scrollTo(0, 0); }, 260); });
       box.appendChild(b); });
   }
