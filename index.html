@@ -116,7 +116,7 @@
       <h1>연인과의 <em>데이트 이야기</em>,<br>들려 주세요</h1>
       <p class="lead">1~2분이면 끝나요. 정답은 없고, 솔직하게 답해 주시면 돼요. 응답은 서비스를 준비하는 데에만 써요.</p>
       <ol class="points">
-        <li><b>01</b><span>질문은 11개, 1~2분이면 끝나요</span></li>
+        <li><b>01</b><span>질문은 12개, 1~2분이면 끝나요</span></li>
         <li><b>02</b><span>끝나면 내 그림으로 양말 시안을 만들어 볼 수 있어요</span></li>
         <li><b>03</b><span>올린 그림은 이 폰 밖으로 나가지 않아요</span></li>
       </ol>
@@ -275,9 +275,10 @@ const CONFIG = {
   const A = {};
   const priceStr = CONFIG.PRICE_TEXT || '[제안가]원';
   const has = (k, v) => Array.isArray(A[k]) && A[k].includes(v);
-  const PART = {status:'데이트 이야기', age:'데이트 이야기', dates:'데이트 이야기', custom:'기념과 선물', regret:'기념과 선물', why_not:'기념과 선물',
+  const PART = {channel:'시작하기 전에', status:'데이트 이야기', age:'데이트 이야기', dates:'데이트 이야기', custom:'기념과 선물', regret:'기념과 선물', why_not:'기념과 선물',
     use:'서비스에 대해', way:'서비스에 대해', buy:'서비스에 대해', hesitate:'서비스에 대해', notify:'마무리', free:'마무리'};
   const QS = [
+    {id:'channel', type:'single', text:'이 설문을 어디서 받으셨나요?', opts:['오프라인 (길이나 가게에서 직접 받았어요)', '온라인 (링크나 메시지로 들어왔어요)']},
     {id:'status', type:'single', text:'지금 연애 상태는?', opts:['연애 중','최근 1년 안에 연애했다','썸·소개팅 중','해당 없음']},
     {id:'age', type:'single', text:'연령대는?', opts:['만 19세 미만','20대 초반','20대 후반','30대 초반','30대 후반 이상']},
     {id:'dates', type:'multi', text:'최근 1년 안에 해 본 「색다른 데이트」를 모두 골라 주세요.',
