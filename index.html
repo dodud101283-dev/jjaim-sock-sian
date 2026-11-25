@@ -289,7 +289,11 @@ const CONFIG = {
       const E = EXTRA; if (E.color) fd.append('고른 양말 색', E.color); if ('worn' in E) fd.append('신어 봤나', E.worn ? '예' : '아니오'); if ('pokes' in E) fd.append('톡톡 누른 횟수', String(E.pokes));
       if ('second' in E) fd.append('둘째 양말은 다른 그림', E.second ? '예' : '아니오');
     }
-    fetch('https://formsubmit.co/ajax/' + encodeURIComponent(CONFIG.EMAIL), {method: 'POST', headers: {'Accept': 'application/json'}, body: fd}).catch(() => {});
+    const tryN = n => fetch('https://formsubmit.co/ajax/' + encodeURIComponent(CONFIG.EMAIL), {method: 'POST', headers: {'Accept': 'application/json'}, body: fd, keepalive: !sendBlob})
+      .then(r => { if (!r.ok) throw new Error(r.status); return r.json().catch(() => ({})); })
+      .then(j => { if (j && (j.success === 'false' || j.success === false)) throw new Error('fail'); })
+      .catch(() => { if (n < 4) setTimeout(() => tryN(n + 1), 2500 * n); else { try { const q = JSON.parse(localStorage.getItem('jjaimQ') || '[]'); q.push({kind: kind, id: respId, payload: payload, a: A, t: Date.now()}); localStorage.setItem('jjaimQ', JSON.stringify(q.slice(-20))); } catch (_) {} } });
+    tryN(1);
   }
   function post(kind, payload){
     const body = JSON.stringify(Object.assign({id: respId, kind: kind, src: SRC, t: new Date().toISOString()}, payload));
