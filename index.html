@@ -62,6 +62,9 @@
   .chk{display:flex; align-items:flex-start; gap:10px; font-size:13.5px; margin:14px 0 4px; color:var(--sub); line-height:1.7; border:1px solid var(--line); padding:14px; border-radius:10px}
   .chk input{width:19px; height:19px; accent-color:var(--ink); flex:none; margin-top:3px}
   .lab{font-size:14px; color:var(--sub); margin-top:14px}
+  .err{color:#d6283f; font-size:13.5px; margin-top:7px; line-height:1.5}
+  input.bad{border-color:#d6283f}
+  .chk.bad{border-color:#d6283f; background:#fff5f5}
 
   .stage{background:var(--soft); border-radius:12px; padding:8px; position:relative}
   canvas{width:100%; height:auto; display:block; border-radius:8px; -webkit-user-select:none; user-select:none}
@@ -117,7 +120,7 @@
       <p class="lead">1~2분이면 끝나요. 정답은 없고, 솔직하게 답해 주시면 돼요. 응답은 서비스를 준비하는 데에만 쓰고, 운영자의 이메일로 전달돼요.</p>
       <ol class="points">
         <li><b>01</b><span>질문은 십여 개, 2분 안팎이면 끝나요</span></li>
-        <li><b>02</b><span>끝나면 내 그림으로 양말 시안을 만들어 볼 수 있어요</span></li>
+        <li><b>02</b><span>원하시면 내 그림으로 양말 시안도 만들어 볼 수 있어요 (무료)</span></li>
         <li><b>03</b><span>올린 그림은 이 폰 밖으로 나가지 않아요</span></li>
       </ol>
       <div class="bottom"><button class="cta" id="start" type="button">시작하기</button></div>
@@ -267,7 +270,7 @@ const CONFIG = {
   const sent = [], EXTRA = {};
   const LABEL = {name: '이름', email: '이메일(선택)', consent_who: '개인정보 동의(이름·이메일)', contact: '연락처', consent: '개인정보 동의(연락처)', price_one_other: '개인 양말 · 원하는 금액(원)', price_pair_other: '커플 세트 · 원하는 금액(원)'};
   function emailSend(kind, payload){
-    const fd = new FormData(), T = {}; QS.forEach(q => { if (q.text) T[q.id] = q.text; });
+    const fd = new FormData(), T = {}; QS.forEach(q => { const t = qText(q); if (t) T[q.id] = t; });
     fd.append('_subject', '[짜임 설문] ' + (kind === 'survey' ? '설문 완료' : '시안 체험 후 답변') + ' · ' + (A.name ? A.name + ' · ' : '') + respId);
     fd.append('_template', 'table'); fd.append('_captcha', 'false');
     fd.append('응답 번호', respId); if (A.name && kind !== 'survey') fd.append('이름', A.name); fd.append('시각', new Date().toLocaleString('ko-KR'));
@@ -296,26 +299,32 @@ const CONFIG = {
   /* ---------------- 설문 ---------------- */
   const A = {};
   const priceStr = CONFIG.PRICE_TEXT || '[제안가]원';
+  const isCouple = () => A.status === '연애 중';
+  const qText = q => typeof q.text === 'function' ? q.text() : q.text;
+  const qOpts = q => typeof q.opts === 'function' ? q.opts() : q.opts;
   const has = (k, v) => Array.isArray(A[k]) && A[k].includes(v);
   const PART = {channel:'시작하기 전에', who:'시작하기 전에', couple_items:'데이트 이야기', price_one:'서비스에 대해', price_pair:'서비스에 대해', status:'데이트 이야기', age:'데이트 이야기', dates:'데이트 이야기', custom:'기념과 선물', regret:'기념과 선물', why_not:'기념과 선물',
     use:'서비스에 대해', way:'서비스에 대해', buy:'서비스에 대해', hesitate:'서비스에 대해', notify:'마무리', free:'마무리'};
   const QS = [
     {id:'channel', type:'single', text:'이 설문을 어디서 받으셨나요?', opts:['오프라인 (길이나 가게에서 직접 받았어요)', '온라인 (링크나 메시지로 들어왔어요)']},
-    {id:'who', type:'who', text:'이름과 이메일을 알려 주세요', help:'이메일은 안 적으셔도 괜찮아요. 이름 대신 닉네임도 돼요.'},
+    {id:'who', type:'who', text:'이름과 이메일을 알려 주세요', help:'실명을 적어 주세요. 이메일은 안 적으셔도 괜찮아요.'},
     {id:'status', type:'single', text:'지금 연애 상태는?', opts:['연애 중','최근 1년 안에 연애했다','썸·소개팅 중','해당 없음']},
     {id:'age', type:'single', text:'연령대는?', opts:['만 19세 미만','20대 초반','20대 후반','30대 초반','30대 후반 이상']},
     {id:'dates', type:'multi', text:'최근 1년 안에 해 본 「색다른 데이트」를 모두 골라 주세요.',
       opts:['팝업스토어','원데이클래스·공방 체험','전시·체험관','인생네컷·스티커사진','방탈출·보드게임·VR','커플 스냅 촬영','여행·캠핑','기타','해 본 적 없음'], excl:['해 본 적 없음']},
     {id:'couple_items', type:'single', text:'평소 커플템을 많이 사용하시나요?', show: () => A.status === '연애 중', opts:['예', '아니요']},
-    {id:'custom', type:'multi', text:'최근 1년 안에 연인과 함께하거나 연인에게 주려고 「맞춤으로 만든」 물건이 있나요?',
-      opts:['커플 의류(티셔츠·커플룩)','이름·사진·문구를 새긴 물건(머그·폰케이스·키링 등)','직접 손으로 만든 선물','맞춤 양말','기타','없다'], excl:['없다']},
+    {id:'custom', type:'multi', excl:['없다'],
+      text: () => isCouple() ? '최근 1년 안에 연인과 함께하거나 연인에게 주려고 「맞춤으로 만든」 물건이 있나요?' : '최근 1년 안에 지인에게 선물하려고 「맞춤으로 만든」 물건이 있나요?',
+      opts: () => isCouple() ? ['커플 의류(티셔츠·커플룩)','이름·사진·문구를 새긴 물건(머그·폰케이스·키링 등)','직접 손으로 만든 선물','맞춤 양말','기타','없다']
+                             : ['이름·사진·문구를 새긴 물건(머그·폰케이스·키링 등)','직접 손으로 만든 선물','맞춤 의류(티셔츠 등)','맞춤 양말','기타','없다']},
     {id:'regret', type:'multi', max:2, text:'만들면서 가장 아쉬웠던 점은?', show: () => !has('custom','없다'),
       opts:['가격','오래 걸림','최소 주문 수량이 많음','디자인 작업이 번거로움','품질(번짐·색)','아쉬운 점 없었다','기타'], excl:['아쉬운 점 없었다']},
     {id:'why_not', type:'single', text:'안 해 본 가장 큰 이유는?', show: () => has('custom','없다'),
       opts:['필요가 없었다','비쌀 것 같다','어디서 하는지 몰랐다','번거롭다','기타']},
-    {id:'__svc', type:'info'},
-    {id:'use', type:'multi', text:'쓴다면 어떤 때일 것 같나요?',
-      opts:['기념일(100일·1주년 등) 선물','데이트 중에 같이 만드는 체험','커플룩·커플템','친구·가족 선물','쓸 일 없다'], excl:['쓸 일 없다']},
+    {id:'use', type:'multi', text:'쓴다면 어떤 때일 것 같나요?', excl:['쓸 일 없다'],
+      help:'사진이나 그림을 인쇄해 한 켤레부터 만들어 주는 맞춤 양말이라고 생각하고 골라 주세요.',
+      opts: () => isCouple() ? ['기념일(100일·1주년 등) 선물','데이트 중에 같이 만드는 체험','커플룩·커플템','친구·가족 선물','쓸 일 없다']
+                             : ['직장 동료 선물','친구 선물','가족 선물','내가 쓰려고','쓸 일 없다']},
     {id:'price_one', type:'single', text:'개인 양말 한 켤레가 얼마라면 사실 것 같나요?', help:'사실 수 있는 가장 높은 금액을 골라 주세요.',
       opts:['5,000원','10,000원','20,000원','30,000원','기타 (직접 입력)','사지 않을 것 같아요'],
       extra:{when:['기타 (직접 입력)'], id:'price_one_other', label:'원하는 금액을 적어 주세요 (원)', input:'number', required:true}},
@@ -326,10 +335,11 @@ const CONFIG = {
       opts:['가격','세탁하면 번지거나 벗겨질까 걱정','걸리는 시간','그림 고르기·만들기가 귀찮음','배송','필요 없음','기타','없다'], excl:['없다']},
     {id:'notify', type:'contact', text:'서비스가 시작되거나 체험 자리가 생기면 알려 드릴까요?',
       opts:['알려 주세요(연락처 입력)','괜찮아요']},
-    {id:'free', type:'text', text:'하고 싶은 말이 있다면 자유롭게 적어 주세요.'}
+    {id:'free', type:'text', text:'하고 싶은 말이 있다면 자유롭게 적어 주세요.'},
+    {id:'try_mock', type:'single', text:'시안을 한번 만들어 볼까요?', help:'유료 서비스가 아니에요. 내 그림으로 양말 시안을 만들어 보는 체험이에요.', opts:['네, 만들어 볼게요','괜찮아요']}
   ];
   const vis = () => QS.map((q, i) => i).filter(i => !QS[i].show || QS[i].show());
-  let qi = 0; const hist = [];
+  let qi = 0; const hist = []; let whoCheck = null;
 
   function startSurvey(){ qi = 0; hist.length = 0; renderQ(); }
   function renderProgress(){
@@ -344,16 +354,17 @@ const CONFIG = {
     go('q'); renderProgress();
     const wrap = $('qwrap'); wrap.classList.remove('slide'); void wrap.offsetWidth; wrap.classList.add('slide');
     $('qeyebrow').textContent = PART[q.id] || '';
-    $('qtext').textContent = q.text;
+    if (typeof q.opts === 'function' && Array.isArray(A[q.id])) A[q.id] = A[q.id].filter(v => qOpts(q).includes(v));
+    $('qtext').textContent = qText(q);
     $('qhelp').textContent = q.type === 'multi' ? (q.max ? '최대 ' + q.max + '개까지 골라요' : '해당하는 걸 모두 골라 주세요') : (q.type === 'text' ? '안 적으셔도 괜찮아요' : '');
     if (q.help) $('qhelp').textContent = q.help;
     $('qhelp').hidden = !$('qhelp').textContent;
     const box = $('qopts'); box.innerHTML = ''; const ex = $('qextra'); ex.innerHTML = ''; ex.hidden = true;
     const sel = () => A[q.id];
-    const update = () => { $('next').disabled = !valid(q); };
+    const update = () => { $('next').disabled = (q.type === 'who') ? false : !valid(q); };
 
     if (q.type === 'single' || q.type === 'multi' || q.type === 'contact'){
-      q.opts.forEach(o => {
+      qOpts(q).forEach(o => {
         const b = document.createElement('button'); b.type = 'button'; b.className = 'opt' + (q.type === 'multi' ? ' sq' : '');
         b.innerHTML = '<span class="t"></span><span class="ck"></span>'; b.querySelector('.t').textContent = o;
         const on = () => q.type === 'multi' ? (sel() || []).includes(o) : sel() === o;
@@ -372,14 +383,31 @@ const CONFIG = {
         b._paint(); box.appendChild(b);
       });
     } else if (q.type === 'who'){
+      const inputs = {}; const errEl = {};
       const mkf = (ph, key, type, label) => { const l = document.createElement('div'); l.className = 'lab'; l.textContent = label;
-        const i = document.createElement('input'); i.type = type; i.placeholder = ph; i.value = A[key] || ''; i.autocomplete = key === 'email' ? 'email' : 'name';
-        i.addEventListener('input', () => { A[key] = i.value; update(); }); box.appendChild(l); box.appendChild(i); };
-      mkf('예) 김애영', 'name', 'text', '이름 (닉네임도 괜찮아요)');
+        const i = document.createElement('input'); i.type = type; i.placeholder = ph; i.value = A[key] || ''; i.autocomplete = key === 'email' ? 'email' : 'name'; inputs[key] = i;
+        const e = document.createElement('div'); e.className = 'err'; e.hidden = true; errEl[key] = e;
+        i.addEventListener('input', () => { A[key] = i.value; if (shown) chk(); }); box.appendChild(l); box.appendChild(i); box.appendChild(e); };
+      let shown = false, chkBox = null;
+      mkf('예) 김애영', 'name', 'text', '이름 (실명)');
       mkf('예) name@example.com', 'email', 'email', '이메일 (선택)');
-      const c = document.createElement('label'); c.className = 'chk';
-      c.innerHTML = '<input type="checkbox"><span><b>개인정보 수집·이용에 동의해요.</b><br>· 수집 항목: 이름(필수), 이메일(선택)<br>· 이용 목적: 응답 확인, 결과·서비스 안내<br>· 보유 기간: ' + CONFIG.RETENTION + '<br>· 전달: 응답은 운영자의 이메일로 전달돼요<br>· 동의하지 않으면 설문에 참여하기 어려워요.</span>';
-      c.querySelector('input').checked = !!A.consent_who; c.querySelector('input').addEventListener('change', e => { A.consent_who = e.target.checked; update(); }); box.appendChild(c);
+      chkBox = document.createElement('label'); chkBox.className = 'chk';
+      chkBox.innerHTML = '<input type="checkbox"><span><b>개인정보 수집·이용에 동의해요.</b><br>· 수집 항목: 이름(필수), 이메일(선택)<br>· 이용 목적: 응답 확인, 결과·서비스 안내<br>· 보유 기간: ' + CONFIG.RETENTION + '<br>· 전달: 응답은 운영자의 이메일로 전달돼요<br>· 동의하지 않으면 설문에 참여하기 어려워요.</span>';
+      const ce = document.createElement('div'); ce.className = 'err'; ce.hidden = true; errEl.consent = ce;
+      chkBox.querySelector('input').checked = !!A.consent_who;
+      chkBox.querySelector('input').addEventListener('change', e => { A.consent_who = e.target.checked; if (shown) chk(); });
+      box.appendChild(chkBox); box.appendChild(ce);
+      const chk = () => {
+        const e = {};
+        if (!(A.name && A.name.trim())) e.name = '이름을 입력해 주세요';
+        if (A.email && A.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(A.email.trim())) e.email = '이메일 형식을 확인해 주세요 (안 적으셔도 돼요)';
+        if (!A.consent_who) e.consent = '개인정보 수집·이용에 동의해 주세요';
+        ['name', 'email', 'consent'].forEach(k => { errEl[k].hidden = !(shown && e[k]); errEl[k].textContent = e[k] || ''; });
+        inputs.name.classList.toggle('bad', !!(shown && e.name)); inputs.email.classList.toggle('bad', !!(shown && e.email)); chkBox.classList.toggle('bad', !!(shown && e.consent));
+        return e;
+      };
+      whoCheck = () => { shown = true; const e = chk(); const k = e.name ? 'name' : e.email ? 'email' : e.consent ? 'consent' : null;
+        if (k){ errEl[k].scrollIntoView({block: 'center', behavior: 'smooth'}); return false; } return true; };
     } else if (q.type === 'text'){
       const t = document.createElement('textarea'); t.placeholder = '자유롭게 적어 주세요'; t.value = A[q.id] || '';
       t.addEventListener('input', () => { A[q.id] = t.value; }); box.appendChild(t);
@@ -403,7 +431,7 @@ const CONFIG = {
       }
     }
     buildExtra(); update();
-    $('next').textContent = qi === QS.length - 1 ? '끝내고 시안 만들러 가기' : '다음';
+    $('next').textContent = '다음';
   }
   function valid(q){
     if (q.type === 'text') return true;
@@ -417,7 +445,8 @@ const CONFIG = {
   }
   function next(){
     const q = QS[qi];
-    if (q.type !== 'info' && !valid(q)) return;
+    if (q.type === 'who'){ if (!(whoCheck && whoCheck())) return; }
+    else if (q.type !== 'info' && !valid(q)) return;
     if (q.id === 'age' && A.age === '만 19세 미만'){ go('end'); return; }
     if (q.id === 'notify' && A.notify !== q.opts[0]){ delete A.contact; delete A.consent; }
     hist.push(qi);
@@ -432,7 +461,9 @@ const CONFIG = {
   function finishSurvey(){
     const a = Object.assign({}, A);
     if (a.notify !== '알려 주세요(연락처 입력)'){ delete a.contact; delete a.consent; }
-    post('survey', {a: a}); go('make'); initMake();
+    post('survey', {a: a});
+    if (A.try_mock && A.try_mock.indexOf('네') === 0){ go('make'); initMake(); }
+    else { go('last'); $('lastCard').hidden = true; $('thanks').hidden = false; $('thanksSub').textContent = '응답이 잘 전달됐어요. 설문에 참여해 주셔서 고맙습니다.'; }
   }
   function renderSvc(){
     renderProgress();
@@ -816,7 +847,7 @@ const CONFIG = {
   if (hsh.indexOf('#d-') === 0){
     const im = sampleImage(); S.imgs = [im, im]; S.t = [newT(), newT()];
     if (hsh === '#d-survey'){ go('intro'); }
-    else if (hsh === '#d-svc'){ qi = QS.findIndex(q => q.id === '__svc'); renderQ(); }
+    else if (hsh === '#d-svc'){ qi = 1; renderQ(); }
     else if (hsh === '#d-q'){ qi = 0; renderQ(); }
     else if (hsh === '#d-make'){ go('make'); $('tools').hidden = false; $('make').disabled = false; wake(); }
     else if (hsh === '#d-big'){ S.t = [{x: 150, y: 170, s: 2.6, r: 0}, {x: 150, y: 170, s: 2.6, r: 0}]; go('make'); $('tools').hidden = false; $('make').disabled = false; uiFromT(); wake(); }
